@@ -1,14 +1,20 @@
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
-from app.context import WorldRequest, PathfinderRequest, ContextBuilder
+from app.context import WorldRequest, PathfinderRequest, ContextBuilder, Context
 from app.core.movement import Movement
 from app.core.trajectory import Trajectory
+from app.exception import PathfinderNotSupportedException
 from app.pathfinder import utils as pathfinder_utils
 from app.world import utils as world_utils
 from app.world.world_image import WorldImage
 
 router = APIRouter()
+
+SUPPORTED_PATHFINDERS = {
+    WorldRequest.Grid: [PathfinderRequest.AStar, PathfinderRequest.JPS],
+    WorldRequest.QTree: [PathfinderRequest.AStar]
+}
 
 
 @router.post(path='/image',
@@ -38,7 +44,7 @@ def get_path_image(file: UploadFile,
                .start(start)
                .end(end)
                .build())
-    context.info()
+    check_context(context)
 
     world = world_utils.build_world(context)
 
@@ -48,3 +54,12 @@ def get_path_image(file: UploadFile,
     image = WorldImage(world, context, tracer)
 
     return StreamingResponse(image.stream(), media_type='image/png')
+
+
+def check_context(context: Context):
+    check_pathfinder(context)
+
+
+def check_pathfinder(context: Context):
+    if context.pathfinder not in SUPPORTED_PATHFINDERS[context.world]:
+        raise PathfinderNotSupportedException(context.world, context.pathfinder)

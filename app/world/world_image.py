@@ -9,6 +9,7 @@ from app.context import Context
 from app.core.cell import Cell
 from app.core.color import Color
 from app.core.point import Point
+from app.core.timing import timing
 from app.pathfinder.tracer import Tracer
 from app.world.world import World
 
@@ -17,9 +18,9 @@ class WorldImage:
     MODE = 'RGB'
     FORMAT = 'png'
 
-    def __init__(self, data: World, context: Context, tracer: Tracer | None = None):
+    def __init__(self, world: World, context: Context, tracer: Tracer | None = None):
         super().__init__()
-        self.data = data
+        self.world = world
         self.context = context
         self.tracer = tracer
 
@@ -32,8 +33,9 @@ class WorldImage:
 
         return stream
 
+    @timing('Image')
     def image(self) -> Image.Image:
-        shape = self.data.pixels.shape
+        shape = self.world.pixels.shape
         image = Image.new(WorldImage.MODE, (shape[1], shape[0]))
         draw = ImageDraw.Draw(image)
 
@@ -46,9 +48,10 @@ class WorldImage:
         return image
 
     def draw_cells(self, draw: ImageDraw.ImageDraw):
-        cells = self.data.get_cells()
+        elements = self.world.get_elements()
 
-        for cell in cells:
+        for element in elements:
+            cell = element.get_cell()
             x0, y0 = cell.position.x, cell.position.y
             x1, y1 = cell.position.x + cell.w - 1, cell.position.y + cell.h - 1
             color = self.get_color(cell)

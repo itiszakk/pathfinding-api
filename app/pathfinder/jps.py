@@ -1,15 +1,15 @@
 from pqdict import pqdict
 
 from app.core.timing import timing
-from app.core.direction import Direction
 from app.pathfinder.pathfinder import Pathfinder
+from app.world.world import WorldElement
 
 
 class JPS(Pathfinder):
     def __init__(self, world, start, end, start_point, end_point):
         super().__init__(world, start, end, start_point, end_point)
 
-    @timing('JPS search')
+    @timing('JPS')
     def search(self):
         queue = pqdict({self.start: 0})
         cost_so_far = {self.start: 0}
@@ -21,32 +21,24 @@ class JPS(Pathfinder):
             if current == self.end:
                 break
 
-            successors = self.successors(current)
+            neighbours = self.prune(current)
 
-            for successor in successors:
-                cost = cost_so_far[current] + self.world.cost(current, successor)
+            for neighbour in neighbours:
 
-                if successor not in visited or cost < cost_so_far[successor]:
-                    queue[successor] = cost + self.world.heuristic(successor, self.end)
-                    cost_so_far[successor] = cost
-                    visited[successor] = current
+                if neighbour.unsafe():
+                    continue
+
+                cost = cost_so_far[current] + self.world.cost(current, neighbour)
+
+                if neighbour not in visited or cost < cost_so_far[neighbour]:
+                    queue[neighbour] = cost + self.world.heuristic(neighbour, self.end)
+                    cost_so_far[neighbour] = cost
+                    visited[neighbour] = current
 
         return visited
 
-    def successors(self, element):
-        successors = []
+    # TODO method
+    def prune(self, element: WorldElement) -> list[WorldElement]:
+        neighbours = []
 
-        for direction in Direction:
-            neighbours = self.graph.neighbours_by_direction(element, direction)
-
-            for neighbour in neighbours:
-                jump_point = self.jump(neighbour, direction)
-
-                if jump_point is not None:
-                    successors.append(jump_point)
-
-        return successors
-
-    # TODO jump
-    def jump(self, element, direction):
-        return element
+        return neighbours

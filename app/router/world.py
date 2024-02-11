@@ -21,7 +21,6 @@ def get_image(file: UploadFile,
                .cell_size(cell_size)
                .border_size(border_size)
                .build())
-    context.info()
 
     world = world_utils.build_world(context)
     image = WorldImage(world, context)

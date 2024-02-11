@@ -8,10 +8,45 @@ import numpy
 from app.core.cell import Cell
 from app.core.direction import Direction
 from app.core.distance import Distance
-from app.core.graph import Graph
 from app.core.movement import Movement
 from app.core.point import Point
 from app.core.timing import timing
+
+
+class WorldGraph:
+    def __init__(self):
+        self.graph: dict[WorldElement, dict[Direction, list[WorldElement]]] = {}
+
+    def add_vertex(self, element: WorldElement):
+        self.graph[element] = {}
+
+    def add_edge(self, origin: WorldElement, direction: Direction, destinations: list[WorldElement]):
+        self.graph[origin][direction] = destinations
+
+    def neighbours_by_direction(self, element: WorldElement, direction: Direction):
+        return self.graph[element][direction]
+
+    def neighbours(self, element: WorldElement):
+        neighbours = []
+
+        for direction in Direction:
+            neighbours_by_direction = self.neighbours_by_direction(element, direction)
+            neighbours.extend(neighbours_by_direction)
+
+        return neighbours
+
+
+class WorldElement(ABC):
+    def __init__(self, entity: Any):
+        self.entity = entity
+
+    def unsafe(self) -> bool:
+        return self.get_cell().state != Cell.State.SAFE
+
+    @classmethod
+    @abstractmethod
+    def get_cell(cls) -> Cell:
+        ...
 
 
 class World(ABC):
@@ -25,26 +60,25 @@ class World(ABC):
         self.pixels = pixels
         self.cell_size = cell_size
         self.movement = movement
-        self.elements: list[Any] = []
 
     def allow_diagonal(self, direction: Direction):
         return self.movement == Movement.Diagonal and direction.is_diagonal()
 
-    def cost(self, start, end):
-        p0 = self.get_cell(start).center()
-        p1 = self.get_cell(end).center()
+    def cost(self, start: WorldElement, end: WorldElement):
+        p0 = start.get_cell().center()
+        p1 = end.get_cell().center()
 
         return self._DISTANCE_BY_MOVEMENT[self.movement](p0, p1)
 
-    def heuristic(self, start, end):
-        p0 = self.get_cell(start).center()
-        p1 = self.get_cell(end).center()
+    def heuristic(self, start: WorldElement, end: WorldElement):
+        p0 = start.get_cell().center()
+        p1 = end.get_cell().center()
 
         return self._DISTANCE_BY_MOVEMENT[self.movement](p0, p1)
 
-    @timing("Graph build")
-    def graph(self) -> Graph:
-        graph = Graph()
+    @timing("Graph")
+    def graph(self) -> WorldGraph:
+        graph = WorldGraph()
 
         for element in self.get_elements():
             graph.add_vertex(element)
@@ -57,30 +91,15 @@ class World(ABC):
 
     @classmethod
     @abstractmethod
-    def get_elements(cls) -> list[Any]:
+    def get_elements(cls) -> list[WorldElement]:
         ...
 
     @classmethod
     @abstractmethod
-    def get_cell(cls, element: Any) -> Cell:
+    def get(cls, point: Point) -> WorldElement:
         ...
 
     @classmethod
     @abstractmethod
-    def get_cells(cls) -> list[Cell]:
-        ...
-
-    @classmethod
-    @abstractmethod
-    def select(cls, targets: list[Any]) -> list[Cell]:
-        ...
-
-    @classmethod
-    @abstractmethod
-    def get(cls, point: Point) -> Any:
-        ...
-
-    @classmethod
-    @abstractmethod
-    def neighbours(cls, element: Any, direction: Direction) -> list[Any]:
+    def neighbours(cls, element: WorldElement, direction: Direction) -> list[WorldElement]:
         ...

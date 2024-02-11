@@ -9,7 +9,7 @@ from app.core.cell import Cell
 from app.core.direction import Direction
 from app.core.point import Point
 from app.core.timing import timing
-from app.world.world import World
+from app.world.world import World, WorldElement
 
 
 class Position(IntEnum):
@@ -19,17 +19,24 @@ class Position(IntEnum):
     SE = 3
 
 
-class QNode:
+class QNode(WorldElement):
     def __init__(self, pixels: numpy.ndarray, position: Point, width, height):
+        super().__init__(self)
         self.cell = Cell(pixels, position, width, height)
         self.depth = 0
         self.parent: QNode | None = None
         self.children = {}
 
+    def get_cell(self) -> Cell:
+        return self.cell
+
     def is_leaf(self) -> bool:
         return not self.children
 
-    def get(self, point: Point) -> QNode:
+    def get(self, point: Point) -> QNode | None:
+        if point is None:
+            return None
+
         if self.is_leaf():
             return self
 
@@ -78,7 +85,7 @@ class QNode:
 
 class QTree(World):
 
-    @timing('QTree build')
+    @timing('QTree')
     def __init__(self, pixels, cell_size, movement):
         super().__init__(pixels, cell_size, movement)
         self.root = QNode(pixels, Point(0, 0), pixels.shape[1], pixels.shape[0])
@@ -91,9 +98,6 @@ class QTree(World):
     def get_elements(self) -> list[QNode]:
         return self.root.search()
 
-    def get_cell(self, element: QNode):
-        return element.cell
-
     def get_cells(self) -> list[Cell]:
         cells = []
         nodes = self.get_elements()
@@ -102,9 +106,6 @@ class QTree(World):
             cells.append(node.cell)
 
         return cells
-
-    def select(self, targets: list[QNode]) -> list[Cell]:
-        return [target.cell for target in targets]
 
     def get(self, point: Point) -> QNode:
         return self.root.get(point)
@@ -123,29 +124,26 @@ class QTree(World):
         neighbours = []
 
         for candidate in candidates:
-            if self.check(candidate):
+
+            if candidate is not None:
                 neighbours.append(candidate)
 
         return neighbours
 
     def diagonal_neighbour(self, element: QNode, direction: Direction) -> QNode:
-        candidate = None
+        point = None
 
         match direction:
             case Direction.NW:
                 point = Point(element.cell.position.x - 1, element.cell.position.y - 1)
-                candidate = self.get(point)
             case Direction.NE:
                 point = Point(element.cell.position.x + element.cell.w, element.cell.position.y - 1)
-                candidate = self.get(point)
             case Direction.SE:
                 point = Point(element.cell.position.x + element.cell.w, element.cell.position.y + element.cell.h)
-                candidate = self.get(point)
             case Direction.SW:
                 point = Point(element.cell.position.x - 1, element.cell.position.y + element.cell.h)
-                candidate = self.get(point)
 
-        return candidate if self.check(candidate) else None
+        return self.get(point)
 
     def get_equal_or_greater_neighbour(self, element: QNode, direction: Direction) -> QNode | None:
         if element.parent is None:
@@ -245,6 +243,3 @@ class QTree(World):
                     candidates.append(candidate.children[Position.SE])
 
         return neighbours
-
-    def check(self, node: QNode) -> bool:
-        return node is not None and node.cell.check()

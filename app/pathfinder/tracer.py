@@ -6,8 +6,9 @@ from shapely import geometry
 from app.core.cell import Cell
 from app.core.distance import Distance
 from app.core.point import Point
+from app.core.timing import timing
 from app.core.trajectory import Trajectory
-from app.world.world import World
+from app.world.world import World, WorldElement
 
 
 def line_intersection(a, b) -> Point | None:
@@ -31,8 +32,9 @@ class Tracer:
         self.path: list[Cell] = []
         self.points: list[Point] = []
 
-    def trace(self, current: Any, visited: dict[Any, Any]):
-        self.visited = self.world.select(list(visited.keys()))
+    @timing('Tracing')
+    def trace(self, current: Any, visited: dict[WorldElement, WorldElement]):
+        self.build_visited(visited)
 
         if current not in visited:
             return
@@ -40,14 +42,14 @@ class Tracer:
         self.build_path(current, visited)
         self.build_points()
 
-    def build_path(self, current: Any, visited: dict[Any, Any]):
-        path = []
+    def build_visited(self, visited: dict[WorldElement, WorldElement]):
+        for target in visited.keys():
+            self.visited.append(target.get_cell())
 
+    def build_path(self, current: WorldElement, visited: dict[WorldElement, WorldElement]):
         while current in visited:
-            path.append(current)
+            self.path.append(current.get_cell())
             current = visited[current]
-
-        self.path = self.world.select(path)
 
     def build_points(self):
         self.points.append(self.end_point)

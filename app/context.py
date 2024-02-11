@@ -32,12 +32,6 @@ class Context:
         self.start: tuple[int, int] = (100, 100)
         self.end: tuple[int, int] = (5000, 5000)
 
-    def info(self):
-        print()
-        print(f'Request:')
-        print(f'World: {self.world}')
-        print(f'Pathfinder: {self.pathfinder}')
-
 
 class ContextBuilder:
     def __init__(self):
