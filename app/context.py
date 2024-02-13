@@ -29,8 +29,8 @@ class Context:
         self.trajectory: Trajectory = Trajectory.Smooth
         self.trajectory_size: int = 5
         self.point_size: int = 10
-        self.start: tuple[int, int] = (100, 100)
-        self.end: tuple[int, int] = (5000, 5000)
+        self.start: tuple[int, int] = (0, 0)
+        self.end: tuple[int, int] = (0, 0)
 
 
 class ContextBuilder:

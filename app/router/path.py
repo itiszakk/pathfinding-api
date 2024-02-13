@@ -4,7 +4,7 @@ from starlette.responses import StreamingResponse
 from app.context import WorldRequest, PathfinderRequest, ContextBuilder, Context
 from app.core.movement import Movement
 from app.core.trajectory import Trajectory
-from app.exception import PathfinderNotSupportedException
+from app.exception import PathfinderNotSupportedException, PathPointsAreEqualException
 from app.pathfinder import utils as pathfinder_utils
 from app.world import utils as world_utils
 from app.world.world_image import WorldImage
@@ -57,9 +57,15 @@ def get_path_image(file: UploadFile,
 
 
 def check_context(context: Context):
+    check_points(context)
     check_pathfinder(context)
 
 
 def check_pathfinder(context: Context):
     if context.pathfinder not in SUPPORTED_PATHFINDERS[context.world]:
         raise PathfinderNotSupportedException(context.world, context.pathfinder)
+
+
+def check_points(context: Context):
+    if context.start == context.end:
+        raise PathPointsAreEqualException()
