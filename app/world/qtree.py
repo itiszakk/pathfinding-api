@@ -79,6 +79,9 @@ class QNode(WorldElement):
 
         return nodes
 
+    def __hash__(self):
+        return hash(id(self))
+
     def __repr__(self) -> str:
         return f'QNode(depth={self.depth}, cell={self.cell})'
 
@@ -86,8 +89,8 @@ class QNode(WorldElement):
 class QTree(World):
 
     @timing('QTree')
-    def __init__(self, pixels, cell_size, movement):
-        super().__init__(pixels, cell_size, movement)
+    def __init__(self, pixels, cell_size):
+        super().__init__(pixels, cell_size)
         self.root = QNode(pixels, Point(0, 0), pixels.shape[1], pixels.shape[0])
         self.build_elements()
 
@@ -111,7 +114,7 @@ class QTree(World):
         return self.root.get(point)
 
     def neighbours(self, element: QNode, direction: Direction) -> list[QNode]:
-        if self.allow_diagonal(direction):
+        if direction.is_diagonal():
             diagonal_neighbour = self.diagonal_neighbour(element, direction)
             return [diagonal_neighbour] if diagonal_neighbour is not None else []
 

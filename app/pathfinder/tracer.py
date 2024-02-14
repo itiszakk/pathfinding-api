@@ -1,14 +1,12 @@
 from itertools import pairwise
-from typing import Any
 
 from shapely import geometry
 
 from app.core.cell import Cell
-from app.core.distance import Distance
 from app.core.point import Point
 from app.core.timing import timing
 from app.core.trajectory import Trajectory
-from app.world.world import World, WorldElement
+from app.world.world_element import WorldElement
 
 
 def line_intersection(a, b) -> Point | None:
@@ -22,51 +20,51 @@ def line_intersection(a, b) -> Point | None:
     return Point(round(intersection.x), round(intersection.y))
 
 
+class TracerInfo:
+    def __init__(self, visited: list[Cell], path: list[Cell], points: list[Point]):
+        self.visited = visited
+        self.path = path
+        self.points = points
+
+
 class Tracer:
-    def __init__(self, world: World, start_point: Point, end_point: Point, trajectory: Trajectory):
-        self.world = world
+    def __init__(self, start: WorldElement, start_point: Point, end: WorldElement, end_point: Point,
+                 trajectory: Trajectory):
+        self.start = start
         self.start_point = start_point
+        self.end = end
         self.end_point = end_point
         self.trajectory = trajectory
-        self.visited: list[Cell] = []
-        self.path: list[Cell] = []
-        self.points: list[Point] = []
 
     @timing('Tracing')
-    def trace(self, current: Any, visited: dict[WorldElement, WorldElement]):
-        self.build_visited(visited)
+    def backtrace(self, visited: dict[WorldElement, WorldElement]) -> TracerInfo:
+        visited_cells = [v.get_cell() for v in visited.keys()]
+        path_cells = []
+        points = []
 
-        if current not in visited:
-            return
+        current = self.end
 
-        self.build_path(current, visited)
-        self.build_points()
-
-    def build_visited(self, visited: dict[WorldElement, WorldElement]):
-        for target in visited.keys():
-            self.visited.append(target.get_cell())
-
-    def build_path(self, current: WorldElement, visited: dict[WorldElement, WorldElement]):
         while current in visited:
-            self.path.append(current.get_cell())
+            path_cells.append(current.get_cell())
             current = visited[current]
 
-    def build_points(self):
-        self.points.append(self.end_point)
+        points.append(self.end_point)
 
-        for cell in self.path[1:-1]:
-            self.points.append(cell.center())
+        for cell in path_cells[1:-1]:
+            points.append(cell.center())
 
-        self.points.append(self.start_point)
+        points.append(self.start_point)
 
-        if self.trajectory == Trajectory.Smooth:
-            self.smooth_points()
+        if self.trajectory is Trajectory.Smooth:
+            points = self.smooth_points(path_cells, points)
 
-    def smooth_points(self):
-        smooth_points = [self.points[0]]
+        return TracerInfo(visited_cells, path_cells, points)
 
-        for index, trajectory in enumerate(pairwise(self.points)):
-            cell = self.path[index]
+    def smooth_points(self, path_cells, points):
+        smooth_points = [self.end_point]
+
+        for index, trajectory in enumerate(pairwise(points)):
+            cell = path_cells[index]
             position, w, h = cell.position, cell.w, cell.h
 
             trajectory = ((trajectory[0].x, trajectory[0].y), (trajectory[1].x, trajectory[1].y))
@@ -92,19 +90,6 @@ class Tracer:
                     smooth_points.append(intersection)
                     break
 
-        smooth_points.append(self.points[-1])
+        smooth_points.append(self.start_point)
 
-        self.points = smooth_points
-
-    def info(self):
-        print(f'Path: {len(self.path)}')
-        print(f'Visited: {len(self.visited)}')
-        print(f'Length: {self.get_path_length()}')
-
-    def get_path_length(self):
-        length = 0
-
-        for p0, p1 in pairwise(self.points):
-            length += Distance.euclidian(p0, p1)
-
-        return length
+        return smooth_points

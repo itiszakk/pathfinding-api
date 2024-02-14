@@ -4,7 +4,7 @@ from enum import StrEnum
 
 from fastapi import UploadFile
 
-from app.core.movement import Movement
+from app.core.distance import Distance
 from app.core.trajectory import Trajectory
 
 
@@ -22,11 +22,11 @@ class Context:
     def __init__(self):
         self.file: UploadFile | None = None
         self.world: WorldRequest = WorldRequest.Grid
+        self.distance: Distance | None = None
         self.cell_size: int = 50
         self.border_size: int = 1
-        self.pathfinder: PathfinderRequest = PathfinderRequest.AStar
-        self.movement: Movement = Movement.Diagonal
-        self.trajectory: Trajectory = Trajectory.Smooth
+        self.pathfinder: PathfinderRequest | None = None
+        self.trajectory: Trajectory | None = None
         self.trajectory_size: int = 5
         self.point_size: int = 10
         self.start: tuple[int, int] = (0, 0)
@@ -57,8 +57,8 @@ class ContextBuilder:
         self.context.pathfinder = pathfinder
         return self
 
-    def movement(self, movement: Movement) -> ContextBuilder:
-        self.context.movement = movement
+    def distance(self, distance: Distance) -> ContextBuilder:
+        self.context.distance = distance
         return self
 
     def trajectory(self, trajectory: Trajectory) -> ContextBuilder:

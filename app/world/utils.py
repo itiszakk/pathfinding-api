@@ -21,5 +21,4 @@ def upload_image_to_array(upload: UploadFile) -> numpy.ndarray:
 
 
 def build_world(context: Context) -> World:
-    pixels = upload_image_to_array(context.file)
-    return WORLDS[context.world](pixels, context.cell_size, context.movement)
+    return WORLDS[context.world](upload_image_to_array(context.file), context.cell_size)

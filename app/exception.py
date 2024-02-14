@@ -4,7 +4,7 @@ from app.context import WorldRequest, PathfinderRequest
 from app.core.point import Point
 
 
-class PathfinderNotSupportedException(HTTPException):
+class PathfinderNotSupportWorldException(HTTPException):
     def __init__(self, world: WorldRequest, pathfinder: PathfinderRequest):
         super().__init__(status_code=500, detail=f'Pathfinder \'{pathfinder}\' does not support world \'{world}\'')
 

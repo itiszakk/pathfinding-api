@@ -4,7 +4,6 @@ import numpy
 
 from app.core.cell import Cell
 from app.core.direction import Direction
-from app.core.movement import Movement
 from app.core.point import Point
 from app.core.timing import timing
 from app.world.world import World, WorldElement
@@ -18,18 +17,21 @@ class IndexedCell(WorldElement):
     def get_cell(self):
         return self.cell
 
+    def __repr__(self):
+        return f'IndexedCell(index={self.entity}, cell={self.cell})'
+
     def __hash__(self):
         return self.entity
 
-    def __eq__(self, other: IndexedCell):
-        return self.entity == other.entity and self.cell == other.cell
+    def __eq__(self, other):
+        return self.entity == other.entity
 
 
 class Grid(World):
 
     @timing('Grid')
-    def __init__(self, pixels: numpy.ndarray, cell_size: int, movement: Movement):
-        super().__init__(pixels, cell_size, movement)
+    def __init__(self, pixels: numpy.ndarray, cell_size: int):
+        super().__init__(pixels, cell_size)
         self.rows = pixels.shape[1] // cell_size
         self.columns = pixels.shape[0] // cell_size
         self.elements: dict[int, IndexedCell] = {}
@@ -57,29 +59,11 @@ class Grid(World):
         row = index.entity // self.columns
         column = index.entity - row * self.columns
 
-        if self.allow_diagonal(direction):
-            neighbour = self.diagonal_neighbour(row, column, direction)
-        else:
-            neighbour = self.cardinal_neighbour(row, column, direction)
+        neighbour = self.neighbour(row, column, direction)
 
         return [neighbour] if neighbour is not None else []
 
-    def diagonal_neighbour(self, row, column, direction: Direction) -> IndexedCell:
-        index = None
-
-        match direction:
-            case Direction.NW:
-                index = self.index(row - 1, column - 1) if row > 0 and column > 0 else None
-            case Direction.NE:
-                index = self.index(row - 1, column + 1) if row > 0 and column < self.columns - 1 else None
-            case Direction.SW:
-                index = self.index(row + 1, column - 1) if row < self.rows - 1 and column > 0 else None
-            case Direction.SE:
-                index = self.index(row + 1, column + 1) if row < self.rows - 1 and column < self.columns - 1 else None
-
-        return self.elements[index] if index is not None else None
-
-    def cardinal_neighbour(self, row, column, direction: Direction) -> IndexedCell:
+    def neighbour(self, row, column, direction: Direction) -> IndexedCell:
         index = None
 
         match direction:
@@ -91,5 +75,13 @@ class Grid(World):
                 index = self.index(row + 1, column) if row < self.rows - 1 else None
             case Direction.W:
                 index = self.index(row, column - 1) if column > 0 else None
+            case Direction.NW:
+                index = self.index(row - 1, column - 1) if row > 0 and column > 0 else None
+            case Direction.NE:
+                index = self.index(row - 1, column + 1) if row > 0 and column < self.columns - 1 else None
+            case Direction.SW:
+                index = self.index(row + 1, column - 1) if row < self.rows - 1 and column > 0 else None
+            case Direction.SE:
+                index = self.index(row + 1, column + 1) if row < self.rows - 1 and column < self.columns - 1 else None
 
         return self.elements[index] if index is not None else None

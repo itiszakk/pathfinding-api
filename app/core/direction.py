@@ -1,42 +1,55 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, auto
+
+
+class DirectionType(Enum):
+    Vertical = auto()
+    Horizontal = auto()
+    Diagonal = auto()
 
 
 class Direction(Enum):
-    N = 0
-    E = 1
-    S = 2
-    W = 3
-    NW = 4
-    NE = 5
-    SW = 6
-    SE = 7
-
-    def is_diagonal(self) -> bool:
-        return self in [Direction.NW, Direction.NE, Direction.SW, Direction.SE]
+    N = auto()
+    E = auto()
+    S = auto()
+    W = auto()
+    NW = auto()
+    NE = auto()
+    SW = auto()
+    SE = auto()
 
     def opposite(self):
         if self is Direction.N:
             return Direction.S
-
-        if self is Direction.E:
-            return Direction.W
-
-        if self is Direction.S:
+        elif self is Direction.S:
             return Direction.N
-
-        if self is Direction.W:
+        elif self is Direction.W:
             return Direction.E
-
-        if self is Direction.NW:
+        elif self is Direction.E:
+            return Direction.W
+        elif self is Direction.NW:
             return Direction.SE
-
-        if self is Direction.NE:
+        elif self is Direction.SE:
+            return Direction.NW
+        elif self is Direction.NE:
             return Direction.SW
-
-        if self is Direction.SW:
+        elif self is Direction.SW:
             return Direction.NE
 
-        if self is Direction.SE:
-            return Direction.NW
+    def get_type(self) -> DirectionType:
+        if self is Direction.N or self is Direction.S:
+            return DirectionType.Vertical
+        elif self is Direction.W or self is Direction.E:
+            return DirectionType.Horizontal
+
+        return DirectionType.Diagonal
+
+    def is_diagonal(self):
+        return self.get_type() is DirectionType.Diagonal
+
+    def is_vertical(self):
+        return self.get_type() is DirectionType.Vertical
+
+    def is_horizontal(self):
+        return self.get_type() is DirectionType.Horizontal
