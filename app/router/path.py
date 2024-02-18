@@ -2,9 +2,9 @@ from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
 from app.context import WorldRequest, PathfinderRequest, ContextBuilder, Context
-from app.core.movement import Movement
+from app.core.distance import Distance
 from app.core.trajectory import Trajectory
-from app.exception import PathfinderNotSupportedException, PathPointsAreEqualException
+from app.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
 from app.pathfinder import utils as pathfinder_utils
 from app.world import utils as world_utils
 from app.world.world_image import WorldImage
@@ -23,7 +23,7 @@ SUPPORTED_PATHFINDERS = {
 def get_path_image(file: UploadFile,
                    world: WorldRequest,
                    pathfinder: PathfinderRequest,
-                   movement: Movement,
+                   distance: Distance,
                    trajectory: Trajectory,
                    cell: int = 50,
                    border: int = 1,
@@ -35,7 +35,7 @@ def get_path_image(file: UploadFile,
                .file(file)
                .world(world)
                .pathfinder(pathfinder)
-               .movement(movement)
+               .distance(distance)
                .trajectory(trajectory)
                .trajectory_size(trajectory_size)
                .cell_size(cell)
@@ -48,10 +48,9 @@ def get_path_image(file: UploadFile,
 
     world = world_utils.build_world(context)
 
-    tracer = pathfinder_utils.build_tracer(world, context)
-    tracer.info()
+    tracer_info = pathfinder_utils.build_trace_info(world, context)
 
-    image = WorldImage(world, context, tracer)
+    image = WorldImage(world, context, tracer_info)
 
     return StreamingResponse(image.stream(), media_type='image/png')
 
@@ -63,7 +62,7 @@ def check_context(context: Context):
 
 def check_pathfinder(context: Context):
     if context.pathfinder not in SUPPORTED_PATHFINDERS[context.world]:
-        raise PathfinderNotSupportedException(context.world, context.pathfinder)
+        raise PathfinderNotSupportWorldException(context.world, context.pathfinder)
 
 
 def check_points(context: Context):

@@ -10,7 +10,7 @@ def timing(message):
             result = func(*args, **kwargs)
             end_time = time.time()
 
-            print(f'{message}: {end_time - start_time} ms')
+            print(f'{message}: {end_time - start_time} sec')
 
             return result
 

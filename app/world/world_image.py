@@ -10,7 +10,7 @@ from app.core.cell import Cell
 from app.core.color import Color
 from app.core.point import Point
 from app.core.timing import timing
-from app.pathfinder.tracer import Tracer
+from app.pathfinder.tracer import TracerInfo
 from app.world.world import World
 
 
@@ -18,11 +18,11 @@ class WorldImage:
     MODE = 'RGB'
     FORMAT = 'png'
 
-    def __init__(self, world: World, context: Context, tracer: Tracer | None = None):
+    def __init__(self, world: World, context: Context, tracer_info: TracerInfo | None = None):
         super().__init__()
         self.world = world
         self.context = context
-        self.tracer = tracer
+        self.tracer_info = tracer_info
 
     def stream(self):
         image = self.image()
@@ -41,7 +41,7 @@ class WorldImage:
 
         self.draw_cells(draw)
 
-        if self.tracer is not None:
+        if self.tracer_info is not None:
             self.draw_trajectory(draw)
             self.draw_points(draw)
 
@@ -59,23 +59,23 @@ class WorldImage:
             draw.rectangle((x0, y0, x1, y1), fill=color, outline=Color.BORDER, width=self.context.border_size)
 
     def get_color(self, cell: Cell):
-        if self.tracer is None:
+        if self.tracer_info is None:
             return cell.state.color
 
-        if cell in self.tracer.path:
+        if cell in self.tracer_info.path:
             return Color.PATH
 
-        if cell in self.tracer.visited:
+        if cell in self.tracer_info.visited:
             return Color.VISITED
 
         return cell.state.color
 
     def draw_trajectory(self, draw: ImageDraw.ImageDraw):
-        for current_point, next_point in pairwise(self.tracer.points):
+        for current_point, next_point in pairwise(self.tracer_info.points):
             self.draw_line(draw, current_point, next_point)
 
     def draw_points(self, draw: ImageDraw.ImageDraw):
-        for point in self.tracer.points:
+        for point in self.tracer_info.points:
             self.draw_point(draw, point)
 
     def draw_point(self, draw: ImageDraw.ImageDraw, p: Point):

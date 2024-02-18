@@ -51,5 +51,11 @@ class Cell:
     def center(self) -> Point:
         return Point(self.position.x + self.w // 2, self.position.y + self.h // 2)
 
+    def safe(self):
+        return self.state == Cell.State.SAFE
+
+    def unsafe(self):
+        return not self.safe()
+
     def __repr__(self) -> str:
         return f'Cell(state={self.state}, position=({self.position}), w={self.w}, h={self.h})'
