@@ -4,13 +4,13 @@ import numpy
 
 from app.core.cell import Cell
 from app.core.direction import Direction
-from app.core.point import Point
 from app.core.timing import timing
+from app.core.vector import Vector2D
 from app.world.world import World, WorldElement
 
 
-class IndexedCell(WorldElement):
-    def __init__(self, index: int, cell: Cell):
+class GridElement(WorldElement):
+    def __init__(self, index: Vector2D, cell: Cell):
         super().__init__(index)
         self.cell = cell
 
@@ -21,7 +21,7 @@ class IndexedCell(WorldElement):
         return f'IndexedCell(index={self.entity}, cell={self.cell})'
 
     def __hash__(self):
-        return self.entity
+        return hash(self.entity)
 
     def __eq__(self, other):
         return self.entity == other.entity
@@ -34,54 +34,58 @@ class Grid(World):
         super().__init__(pixels, cell_size)
         self.rows = pixels.shape[1] // cell_size
         self.columns = pixels.shape[0] // cell_size
-        self.elements: dict[int, IndexedCell] = {}
+        self.elements: list[list[GridElement]] = []
         self.build_elements()
 
     def build_elements(self):
-        for row in range(self.rows):
-            for col in range(self.columns):
-                position = Point(col * self.cell_size, row * self.cell_size)
-                cell = Cell(self.pixels, position, self.cell_size, self.cell_size)
-                index = self.index(row, col)
-                self.elements[index] = IndexedCell(index, cell)
+        for i in range(self.columns):
+            sub = []
 
-    def get_elements(self) -> list[IndexedCell]:
-        return list(self.elements.values())
+            for j in range(self.rows):
+                position = Vector2D(i * self.cell_size, j * self.cell_size)
+                element = GridElement(index=Vector2D(i, j),
+                                      cell=Cell(self.pixels, position, self.cell_size, self.cell_size))
+                sub.append(element)
 
-    def get(self, point: Point) -> IndexedCell:
-        index = self.index(point.y // self.cell_size, point.x // self.cell_size)
-        return self.elements[index]
+            self.elements.append(sub)
 
-    def index(self, row: int, column: int) -> int:
-        return row * self.columns + column
+    def get_elements(self) -> list[GridElement]:
+        return [j for sub in self.elements for j in sub]
 
-    def neighbours(self, index: IndexedCell, direction: Direction) -> list[IndexedCell]:
-        row = index.entity // self.columns
-        column = index.entity - row * self.columns
+    def get(self, point: Vector2D) -> GridElement:
+        return self.elements[point.x // self.cell_size][point.y // self.cell_size]
 
-        neighbour = self.neighbour(row, column, direction)
-
+    def neighbours(self, index: GridElement, direction: Direction) -> list[GridElement]:
+        neighbour = self.neighbour(index.entity, direction)
         return [neighbour] if neighbour is not None else []
 
-    def neighbour(self, row, column, direction: Direction) -> IndexedCell:
-        index = None
+    def neighbour(self, index: Vector2D, direction: Direction) -> GridElement | None:
+        i, j = index
 
         match direction:
             case Direction.N:
-                index = self.index(row - 1, column) if row > 0 else None
+                if j > 0:
+                    return self.elements[i][j - 1]
             case Direction.E:
-                index = self.index(row, column + 1) if column < self.columns - 1 else None
+                if i < self.columns - 1:
+                    return self.elements[i + 1][j]
             case Direction.S:
-                index = self.index(row + 1, column) if row < self.rows - 1 else None
+                if j < self.rows - 1:
+                    return self.elements[i][j + 1]
             case Direction.W:
-                index = self.index(row, column - 1) if column > 0 else None
+                if i > 0:
+                    return self.elements[i - 1][j]
             case Direction.NW:
-                index = self.index(row - 1, column - 1) if row > 0 and column > 0 else None
+                if i > 0 and j > 0:
+                    return self.elements[i - 1][j - 1]
             case Direction.NE:
-                index = self.index(row - 1, column + 1) if row > 0 and column < self.columns - 1 else None
+                if i < self.columns - 1 and j > 0:
+                    return self.elements[i + 1][j - 1]
             case Direction.SW:
-                index = self.index(row + 1, column - 1) if row < self.rows - 1 and column > 0 else None
+                if i > 0 and j < self.rows - 1:
+                    return self.elements[i - 1][j + 1]
             case Direction.SE:
-                index = self.index(row + 1, column + 1) if row < self.rows - 1 and column < self.columns - 1 else None
+                if i < self.columns - 1 and j < self.rows - 1:
+                    return self.elements[i + 1][j + 1]
 
-        return self.elements[index] if index is not None else None
+        return None

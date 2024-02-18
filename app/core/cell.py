@@ -5,54 +5,50 @@ from enum import Enum
 import numpy
 
 from app.core.color import Color
-from app.core.point import Point
+from app.core.vector import Vector2D
+
+
+class CellState(Enum):
+    def __init__(self, index, color):
+        super().__init__()
+        self.index = index
+        self.color = color
+
+    SAFE = 0, Color.SAFE
+    MIXED = 1, Color.MIXED
+    UNSAFE = 2, Color.UNSAFE
+
+    @staticmethod
+    def of(pixels: numpy.ndarray) -> CellState:
+        any_safe = numpy.any(pixels == Color.SAFE)
+        any_unsafe = numpy.any(pixels == Color.UNSAFE)
+
+        if any_safe and not any_unsafe:
+            return CellState.SAFE
+        elif not any_safe and any_unsafe:
+            return CellState.UNSAFE
+        return CellState.MIXED
 
 
 class Cell:
-    class State(Enum):
-        def __init__(self, index, color):
-            super().__init__()
-            self.index = index
-            self.color = color
 
-        SAFE = 0, Color.SAFE
-        MIXED = 1, Color.MIXED
-        UNSAFE = 2, Color.UNSAFE
-
-        @staticmethod
-        def of(slice: numpy.ndarray) -> Cell.State:
-            any_safe = numpy.any(slice == Color.SAFE)
-            any_unsafe = numpy.any(slice == Color.UNSAFE)
-
-            if any_safe and not any_unsafe:
-                return Cell.State.SAFE
-            elif not any_safe and any_unsafe:
-                return Cell.State.UNSAFE
-            return Cell.State.MIXED
-
-    def __init__(self, pixels: numpy.ndarray, position: Point, width, height):
+    def __init__(self, pixels: numpy.ndarray, position: Vector2D, width, height):
         self.position = position
         self.w = width
         self.h = height
-        self.state = None
+        self.state = CellState.of(
+            pixels[self.position.y:self.position.y + self.h, self.position.x:self.position.x + self.w])
 
-        self.init_state(pixels)
-
-    def init_state(self, pixels: numpy.ndarray):
-        x0, y0 = self.position.x, self.position.y
-        x1, y1 = self.position.x + self.w, self.position.y + self.h
-        self.state = Cell.State.of(pixels[y0:y1, x0:x1])
-
-    def contains(self, point: Point) -> bool:
+    def contains(self, point: Vector2D) -> bool:
         x_contains = self.position.x <= point.x < self.position.x + self.w
         y_contains = self.position.y <= point.y < self.position.y + self.h
         return x_contains and y_contains
 
-    def center(self) -> Point:
-        return Point(self.position.x + self.w // 2, self.position.y + self.h // 2)
+    def center(self) -> Vector2D:
+        return Vector2D(self.position.x + self.w // 2, self.position.y + self.h // 2)
 
     def safe(self):
-        return self.state == Cell.State.SAFE
+        return self.state == CellState.SAFE
 
     def unsafe(self):
         return not self.safe()

@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from app.context import WorldRequest, PathfinderRequest
-from app.core.point import Point
+from app.core.vector import Vector2D
 
 
 class PathfinderNotSupportWorldException(HTTPException):
@@ -10,7 +10,7 @@ class PathfinderNotSupportWorldException(HTTPException):
 
 
 class PathPointIsUnsafeException(HTTPException):
-    def __init__(self, point: Point):
+    def __init__(self, point: Vector2D):
         super().__init__(status_code=500, detail=f'{point} is unsafe')
 
 

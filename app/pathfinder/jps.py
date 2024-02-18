@@ -2,14 +2,11 @@ from collections import namedtuple
 
 from pqdict import pqdict
 
-from app.core import utils
 from app.core.direction import Direction
 from app.core.timing import timing
 from app.pathfinder.pathfinder import Pathfinder
 from app.world.world import WorldElement
 
-
-# TODO refactor world
 
 class JPS(Pathfinder):
     Cardinal = namedtuple('Cardinal', ['v', 'h'])
@@ -32,8 +29,8 @@ class JPS(Pathfinder):
         Direction.SW: Direction.NE
     }
 
-    def __init__(self, world, start, end, start_point, end_point, trajectory):
-        super().__init__(world, start, end, start_point, end_point, trajectory)
+    def __init__(self, graph, distance, start, end, start_point, end_point, trajectory):
+        super().__init__(graph, distance, start, end, start_point, end_point, trajectory)
 
     @timing('JPS')
     def method(self):
@@ -50,10 +47,14 @@ class JPS(Pathfinder):
             successors = self.successors(current, visited[current])
 
             for successor in successors:
-                cost = cost_so_far[current] + self.graph.cost(current, successor)
+
+                if successor in queue:
+                    continue
+
+                cost = cost_so_far[current] + self.cost(current, successor)
 
                 if successor not in visited or cost < cost_so_far[successor]:
-                    queue[successor] = cost + self.graph.heuristics(successor, self.end)
+                    queue[successor] = cost + self.heuristics(successor, self.end)
                     cost_so_far[successor] = cost
                     visited[successor] = current
 
@@ -77,16 +78,15 @@ class JPS(Pathfinder):
             return self.graph.neighbours(current)
 
         neighbours = []
-
-        direction = utils.direction(current, parent)
+        direction = self.direction(current, parent)
 
         if direction.is_diagonal():
             cardinal = JPS.CARDINAL[direction]
 
             vertical = self.graph.neighbour(current, cardinal.v)
-            horizontal = self.graph.neighbour(current, cardinal.h)
-
             vertical_safe = vertical is not None and vertical.safe()
+
+            horizontal = self.graph.neighbour(current, cardinal.h)
             horizontal_safe = horizontal is not None and horizontal.safe()
 
             if vertical_safe:
@@ -146,7 +146,7 @@ class JPS(Pathfinder):
         if current is self.end:
             return current
 
-        direction = utils.direction(current, parent)
+        direction = self.direction(current, parent)
 
         if direction.is_diagonal():
             cardinal = JPS.CARDINAL[direction]

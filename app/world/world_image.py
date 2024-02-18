@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 from app.context import Context
 from app.core.cell import Cell
 from app.core.color import Color
-from app.core.point import Point
+from app.core.vector import Vector2D
 from app.core.timing import timing
 from app.pathfinder.tracer import TracerInfo
 from app.world.world import World
@@ -78,7 +78,7 @@ class WorldImage:
         for point in self.tracer_info.points:
             self.draw_point(draw, point)
 
-    def draw_point(self, draw: ImageDraw.ImageDraw, p: Point):
+    def draw_point(self, draw: ImageDraw.ImageDraw, p: Vector2D):
         point_size = self.context.point_size
 
         x0, y0 = p.x - point_size, p.y - point_size
@@ -86,5 +86,5 @@ class WorldImage:
 
         draw.ellipse((x0, y0, x1, y1), fill=Color.POINT)
 
-    def draw_line(self, draw: ImageDraw.ImageDraw, p0: Point, p1: Point):
+    def draw_line(self, draw: ImageDraw.ImageDraw, p0: Vector2D, p1: Vector2D):
         draw.line((p0.x, p0.y, p1.x, p1.y), fill=Color.TRAJECTORY, width=self.context.trajectory_size)

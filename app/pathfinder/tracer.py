@@ -3,13 +3,13 @@ from itertools import pairwise
 from shapely import geometry
 
 from app.core.cell import Cell
-from app.core.point import Point
+from app.core.vector import Vector2D
 from app.core.timing import timing
 from app.core.trajectory import Trajectory
 from app.world.world_element import WorldElement
 
 
-def line_intersection(a, b) -> Point | None:
+def line_intersection(a, b) -> Vector2D | None:
     a = geometry.LineString(a)
     b = geometry.LineString(b)
 
@@ -17,18 +17,21 @@ def line_intersection(a, b) -> Point | None:
         return None
 
     intersection = a.intersection(b)
-    return Point(round(intersection.x), round(intersection.y))
+    return Vector2D(round(intersection.x), round(intersection.y))
 
 
 class TracerInfo:
-    def __init__(self, visited: list[Cell], path: list[Cell], points: list[Point]):
+    def __init__(self, visited: list[Cell], path: list[Cell], points: list[Vector2D]):
         self.visited = visited
         self.path = path
         self.points = points
 
+        print(f'Visited: {len(visited)}')
+        print(f'Path: {len(path)}')
+
 
 class Tracer:
-    def __init__(self, start: WorldElement, start_point: Point, end: WorldElement, end_point: Point,
+    def __init__(self, start: WorldElement, start_point: Vector2D, end: WorldElement, end_point: Vector2D,
                  trajectory: Trajectory):
         self.start = start
         self.start_point = start_point

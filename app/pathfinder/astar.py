@@ -5,8 +5,8 @@ from app.pathfinder.pathfinder import Pathfinder
 
 
 class AStar(Pathfinder):
-    def __init__(self, world, start, end, start_point, end_point, trajectory):
-        super().__init__(world, start, end, start_point, end_point, trajectory)
+    def __init__(self, graph, distance, start, end, start_point, end_point, trajectory):
+        super().__init__(graph, distance, start, end, start_point, end_point, trajectory)
 
     @timing('AStar')
     def method(self):
@@ -23,10 +23,14 @@ class AStar(Pathfinder):
             neighbours = self.graph.neighbours(current)
 
             for neighbour in neighbours:
-                cost = cost_so_far[current] + self.graph.cost(current, neighbour)
+
+                if neighbour in queue:
+                    continue
+
+                cost = cost_so_far[current] + self.cost(current, neighbour)
 
                 if neighbour not in visited or cost < cost_so_far[neighbour]:
-                    queue[neighbour] = cost + self.graph.heuristics(neighbour, self.end)
+                    queue[neighbour] = cost + self.heuristics(neighbour, self.end)
                     cost_so_far[neighbour] = cost
                     visited[neighbour] = current
 

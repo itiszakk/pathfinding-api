@@ -5,9 +5,9 @@ from enum import IntEnum
 
 import numpy
 
-from app.core.cell import Cell
+from app.core.cell import Cell, CellState
 from app.core.direction import Direction
-from app.core.point import Point
+from app.core.vector import Vector2D
 from app.core.timing import timing
 from app.world.world import World, WorldElement
 
@@ -20,7 +20,7 @@ class Position(IntEnum):
 
 
 class QNode(WorldElement):
-    def __init__(self, pixels: numpy.ndarray, position: Point, width, height):
+    def __init__(self, pixels: numpy.ndarray, position: Vector2D, width, height):
         super().__init__(self)
         self.cell = Cell(pixels, position, width, height)
         self.depth = 0
@@ -33,7 +33,7 @@ class QNode(WorldElement):
     def is_leaf(self) -> bool:
         return not self.children
 
-    def get(self, point: Point) -> QNode | None:
+    def get(self, point: Vector2D) -> QNode | None:
         if point is None:
             return None
 
@@ -53,7 +53,7 @@ class QNode(WorldElement):
         x0, y0 = self.cell.position.x, self.cell.position.y
         w, h = self.cell.w, self.cell.h
 
-        if self.cell.state != Cell.State.MIXED:
+        if self.cell.state != CellState.MIXED:
             return
 
         new_w, new_h = w // 2, h // 2
@@ -61,10 +61,10 @@ class QNode(WorldElement):
         if new_w < min_size or new_h < min_size:
             return
 
-        self.add_child(QNode(pixels, Point(x0, y0), new_w, new_h), Position.NW)
-        self.add_child(QNode(pixels, Point(x0 + new_w, y0), new_w + w % 2, new_h), Position.NE)
-        self.add_child(QNode(pixels, Point(x0, y0 + new_h), new_w, new_h + h % 2), Position.SW)
-        self.add_child(QNode(pixels, Point(x0 + new_w, y0 + new_h), new_w + w % 2, new_h + h % 2), Position.SE)
+        self.add_child(QNode(pixels, Vector2D(x0, y0), new_w, new_h), Position.NW)
+        self.add_child(QNode(pixels, Vector2D(x0 + new_w, y0), new_w + w % 2, new_h), Position.NE)
+        self.add_child(QNode(pixels, Vector2D(x0, y0 + new_h), new_w, new_h + h % 2), Position.SW)
+        self.add_child(QNode(pixels, Vector2D(x0 + new_w, y0 + new_h), new_w + w % 2, new_h + h % 2), Position.SE)
 
         for child in self.children.values():
             child.divide(pixels, min_size)
@@ -91,12 +91,11 @@ class QTree(World):
     @timing('QTree')
     def __init__(self, pixels, cell_size):
         super().__init__(pixels, cell_size)
-        self.root = QNode(pixels, Point(0, 0), pixels.shape[1], pixels.shape[0])
+        self.root = QNode(pixels, Vector2D(0, 0), pixels.shape[1], pixels.shape[0])
         self.build_elements()
 
     def build_elements(self):
         self.root.divide(self.pixels, self.cell_size)
-        self.elements = self.get_elements()
 
     def get_elements(self) -> list[QNode]:
         return self.root.search()
@@ -110,7 +109,7 @@ class QTree(World):
 
         return cells
 
-    def get(self, point: Point) -> QNode:
+    def get(self, point: Vector2D) -> QNode:
         return self.root.get(point)
 
     def neighbours(self, element: QNode, direction: Direction) -> list[QNode]:
@@ -138,13 +137,13 @@ class QTree(World):
 
         match direction:
             case Direction.NW:
-                point = Point(element.cell.position.x - 1, element.cell.position.y - 1)
+                point = Vector2D(element.cell.position.x - 1, element.cell.position.y - 1)
             case Direction.NE:
-                point = Point(element.cell.position.x + element.cell.w, element.cell.position.y - 1)
+                point = Vector2D(element.cell.position.x + element.cell.w, element.cell.position.y - 1)
             case Direction.SE:
-                point = Point(element.cell.position.x + element.cell.w, element.cell.position.y + element.cell.h)
+                point = Vector2D(element.cell.position.x + element.cell.w, element.cell.position.y + element.cell.h)
             case Direction.SW:
-                point = Point(element.cell.position.x - 1, element.cell.position.y + element.cell.h)
+                point = Vector2D(element.cell.position.x - 1, element.cell.position.y + element.cell.h)
 
         return self.get(point)
 
