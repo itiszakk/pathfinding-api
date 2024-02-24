@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
-from app.context import WorldRequest, PathfinderRequest, ContextBuilder, Context
+from app.context import WorldRequest, PathfinderRequest, Context
 from app.core.distance import Distance
 from app.core.trajectory import Trajectory
 from app.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
@@ -31,19 +31,17 @@ def get_path_image(file: UploadFile,
                    point: int = 10,
                    start: tuple[int, int] = Query((0, 0)),
                    end: tuple[int, int] = Query((0, 0))):
-    context = (ContextBuilder()
-               .file(file)
-               .world(world)
-               .pathfinder(pathfinder)
-               .distance(distance)
-               .trajectory(trajectory)
-               .trajectory_size(trajectory_size)
-               .cell_size(cell)
-               .border_size(border)
-               .point_size(point)
-               .start(start)
-               .end(end)
-               .build())
+    context = Context(file=file,
+                      world=world,
+                      pathfinder=pathfinder,
+                      distance=distance,
+                      trajectory=trajectory,
+                      cell_size=cell,
+                      border_size=border,
+                      trajectory_size=trajectory_size,
+                      point_size=point,
+                      start=start,
+                      end=end)
     check_context(context)
 
     world = world_utils.build_world(context)
