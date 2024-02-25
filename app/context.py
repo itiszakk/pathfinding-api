@@ -6,6 +6,7 @@ from fastapi import UploadFile
 
 from app.core.distance import Distance
 from app.core.trajectory import Trajectory
+from app.core.vector import Vector2D
 
 
 class WorldRequest(StrEnum):
@@ -40,5 +41,5 @@ class Context:
         self.trajectory = trajectory
         self.trajectory_size = trajectory_size
         self.point_size = point_size
-        self.start = start
-        self.end = end
+        self.start = Vector2D(*start)
+        self.end = Vector2D(*end)

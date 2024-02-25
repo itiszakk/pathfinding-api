@@ -16,6 +16,9 @@ SUPPORTED_PATHFINDERS = {
     WorldRequest.QTree: [PathfinderRequest.AStar]
 }
 
+DEFAULT_START = Query((0, 0))
+DEFAULT_END = Query((0, 0))
+
 
 @router.post(path='/image',
              summary='Create path image',
@@ -29,8 +32,8 @@ def get_path_image(file: UploadFile,
                    border: int = 1,
                    trajectory_size: int = 5,
                    point: int = 10,
-                   start: tuple[int, int] = Query((0, 0)),
-                   end: tuple[int, int] = Query((0, 0))):
+                   start: tuple[int, int] = DEFAULT_START,
+                   end: tuple[int, int] = DEFAULT_END):
     context = Context(file=file,
                       world=world,
                       pathfinder=pathfinder,

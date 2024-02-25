@@ -13,17 +13,15 @@ PATHFINDERS = {
 
 
 def build_trace_info(world: World, context: Context) -> TracerInfo:
-    start_point = Vector2D(context.start[0], context.start[1])
-    start = world.get(start_point)
-    end_point = Vector2D(context.end[0], context.end[1])
-    end = world.get(end_point)
+    start = world.get(context.start)
+    end = world.get(context.end)
     pathfinder = context.pathfinder
     distance = context.distance
     trajectory = context.trajectory
 
-    check_points(start_point, end_point, start, end)
+    check_points(context.start, context.end, start, end)
 
-    pathfinder = PATHFINDERS[pathfinder](world.graph(), distance, start, end, start_point, end_point, trajectory)
+    pathfinder = PATHFINDERS[pathfinder](world.graph(), distance, start, end, context.start, context.end, trajectory)
     return pathfinder.search()
 
 
