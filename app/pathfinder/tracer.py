@@ -98,7 +98,7 @@ class Tracer:
 
         points.append(self.start_point)
 
-        if self.trajectory is Trajectory.Smooth:
+        if self.trajectory is Trajectory.SMOOTH:
             points = self.smooth_points(path_cells, points)
 
         return TracerInfo(visited_cells, path_cells, points)

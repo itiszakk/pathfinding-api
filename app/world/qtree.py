@@ -79,6 +79,8 @@ class QNode(WorldElement):
             if node.cell.contains(point):
                 return node.get(point)
 
+        return None
+
     def add_child(self, node: QNode, position: Position):
         """
         Adds a child node to the current node
@@ -274,7 +276,8 @@ class QTree(World):
             case Direction.N:
                 if element == element.parent.children[Position.SW]:
                     return element.parent.children[Position.NW]
-                elif element == element.parent.children[Position.SE]:
+
+                if element == element.parent.children[Position.SE]:
                     return element.parent.children[Position.NE]
 
                 next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
@@ -290,7 +293,8 @@ class QTree(World):
             case Direction.E:
                 if element == element.parent.children[Position.NW]:
                     return element.parent.children[Position.NE]
-                elif element == element.parent.children[Position.SW]:
+
+                if element == element.parent.children[Position.SW]:
                     return element.parent.children[Position.SE]
 
                 next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
@@ -306,7 +310,8 @@ class QTree(World):
             case Direction.S:
                 if element == element.parent.children[Position.NW]:
                     return element.parent.children[Position.SW]
-                elif element == element.parent.children[Position.NE]:
+
+                if element == element.parent.children[Position.NE]:
                     return element.parent.children[Position.SE]
 
                 next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
@@ -322,7 +327,8 @@ class QTree(World):
             case Direction.W:
                 if element == element.parent.children[Position.NE]:
                     return element.parent.children[Position.NW]
-                elif element == element.parent.children[Position.SE]:
+
+                if element == element.parent.children[Position.SE]:
                     return element.parent.children[Position.SW]
 
                 next_element = self.get_equal_or_greater_neighbour(element.parent, direction)

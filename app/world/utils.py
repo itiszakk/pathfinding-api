@@ -6,7 +6,7 @@ import numpy
 from PIL import Image
 from fastapi import UploadFile
 
-from app.context import Context, WorldRequest
+from app.context import WorldRequest, WorldContext
 from app.world.grid import Grid
 from app.world.qtree import QTree
 from app.world.world import World
@@ -14,8 +14,8 @@ from app.world.world import World
 IMAGE_MODE = 'RGB'
 
 WORLDS = {
-    WorldRequest.Grid: Grid,
-    WorldRequest.QTree: QTree
+    WorldRequest.GRID: Grid,
+    WorldRequest.QTREE: QTree
 }
 
 
@@ -30,7 +30,7 @@ def upload_image_to_array(upload: UploadFile) -> numpy.ndarray:
     return numpy.array(image)  # Convert the image to a numpy array
 
 
-def build_world(context: Context) -> World:
+def build_world(context: WorldContext) -> World:
     """
     Builds a world instance based on the provided context
     :param context: the context containing information about the world

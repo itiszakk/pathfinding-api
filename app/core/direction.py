@@ -11,9 +11,9 @@ class DirectionType(Enum):
     """
     Enumerates types of directions
     """
-    Vertical = auto()
-    Horizontal = auto()
-    Diagonal = auto()
+    VERTICAL = auto()
+    HORIZONTAL = auto()
+    DIAGONAL = auto()
 
 
 class Direction(Enum):
@@ -37,20 +37,29 @@ class Direction(Enum):
         """
         if self is Direction.N:
             return Direction.S
-        elif self is Direction.S:
+
+        if self is Direction.S:
             return Direction.N
-        elif self is Direction.W:
+
+        if self is Direction.W:
             return Direction.E
-        elif self is Direction.E:
+
+        if self is Direction.E:
             return Direction.W
-        elif self is Direction.NW:
+
+        if self is Direction.NW:
             return Direction.SE
-        elif self is Direction.SE:
+
+        if self is Direction.SE:
             return Direction.NW
-        elif self is Direction.NE:
+
+        if self is Direction.NE:
             return Direction.SW
-        elif self is Direction.SW:
+
+        if self is Direction.SW:
             return Direction.NE
+
+        return None
 
     def get_type(self) -> DirectionType:
         """
@@ -58,29 +67,30 @@ class Direction(Enum):
         :return: the type of direction
         """
         if self is Direction.N or self is Direction.S:
-            return DirectionType.Vertical
-        elif self is Direction.W or self is Direction.E:
-            return DirectionType.Horizontal
+            return DirectionType.VERTICAL
 
-        return DirectionType.Diagonal
+        if self is Direction.W or self is Direction.E:
+            return DirectionType.HORIZONTAL
+
+        return DirectionType.DIAGONAL
 
     def is_diagonal(self):
         """
         Checks if the direction is diagonal
         :return: True if diagonal, False otherwise
         """
-        return self.get_type() is DirectionType.Diagonal
+        return self.get_type() is DirectionType.DIAGONAL
 
     def is_vertical(self):
         """
         Checks if the direction is vertical
         :return: True if vertical, False otherwise
         """
-        return self.get_type() is DirectionType.Vertical
+        return self.get_type() is DirectionType.VERTICAL
 
     def is_horizontal(self):
         """
         Checks if the direction is horizontal
         :return: True if horizontal, False otherwise
         """
-        return self.get_type() is DirectionType.Horizontal
+        return self.get_type() is DirectionType.HORIZONTAL

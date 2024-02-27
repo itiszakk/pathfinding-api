@@ -5,7 +5,7 @@ World API module
 from fastapi import APIRouter, UploadFile
 from starlette.responses import StreamingResponse
 
-from app.context import WorldRequest, Context
+from app.context import WorldRequest, WorldContext, Context
 from app.world import utils as world_utils
 from app.world.world_image import WorldImage
 
@@ -28,9 +28,8 @@ def get_image(file: UploadFile,
     :return: StreamingResponse with the generated world image
     """
 
-    context = Context(file=file, world=world, cell_size=cell, border_size=border)
-
-    world = world_utils.build_world(context)
-    image = WorldImage(world, context)
+    world_context = WorldContext(file, world, cell, border)
+    world = world_utils.build_world(world_context)
+    image = WorldImage(world, Context(world_context))
 
     return StreamingResponse(image.stream(), media_type='image/png')

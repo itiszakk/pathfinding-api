@@ -35,18 +35,20 @@ class Distance(StrEnum):
     Enumerates distance calculation methods
     """
 
-    Euclidian = 'euclidian'
-    Manhattan = 'manhattan'
+    MANHATTAN = 'manhattan'
+    EUCLIDIAN = 'euclidian'
 
-    def calculate(self, p0: Vector2D, p1: Vector2D):
+    def calculate(self, p0: Vector2D, p1: Vector2D) -> float | None:
         """
         Calculates the distance between two points based on the selected method
         :param p0: the first point
         :param p1: the second point
         :return: the distance between the two points
         """
-        
-        if self is Distance.Manhattan:
+        if self is Distance.MANHATTAN:
             return manhattan(p0, p1)
-        elif self is Distance.Euclidian:
+
+        if self is Distance.EUCLIDIAN:
             return euclidian(p0, p1)
+
+        return None

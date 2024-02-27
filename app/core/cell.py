@@ -39,8 +39,10 @@ class CellState(Enum):
 
         if any_safe and not any_unsafe:
             return CellState.SAFE
-        elif not any_safe and any_unsafe:
+
+        if not any_safe and any_unsafe:
             return CellState.UNSAFE
+
         return CellState.MIXED
 
 

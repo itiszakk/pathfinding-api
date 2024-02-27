@@ -35,11 +35,9 @@ class WorldElement(ABC):
         """
         return self.get_cell().unsafe()
 
-    @classmethod
     @abstractmethod
-    def get_cell(cls) -> Cell:
+    def get_cell(self) -> Cell:
         """
         Abstract method to get the cell associated with the element
         :return: Cell object representing the cell associated with the element
         """
-        ...

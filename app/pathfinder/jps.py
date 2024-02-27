@@ -183,7 +183,6 @@ class JPS(Pathfinder):
         :param parent: the parent node of the current node
         :return: the next jump point
         """
-        
         if current is None or current.unsafe():
             return None
 
@@ -227,3 +226,32 @@ class JPS(Pathfinder):
                     return current
 
         return self.jump(self.graph.neighbour(current, direction), current)
+
+    @staticmethod
+    def direction(current: WorldElement, parent: WorldElement):
+        """
+        Determines the direction from current node to its parent node
+        :param current: the current node
+        :param parent: the parent node
+        :return: the direction from current node to its parent node
+        """
+
+        cx, cy = current.get_cell().center()
+        px, py = parent.get_cell().center()
+
+        dx = cx - px
+        dy = cy - py
+
+        if dx != 0 and dy != 0:
+            if dx > 0:
+                return Direction.SE if dy > 0 else Direction.NE
+
+            return Direction.SW if dy > 0 else Direction.NW
+
+        if dx != 0:
+            return Direction.E if dx > 0 else Direction.W
+
+        if dy != 0:
+            return Direction.S if dy > 0 else Direction.N
+
+        return None

@@ -2,7 +2,7 @@
 Pathfinder utilities module
 """
 
-from app.context import PathfinderRequest, Context
+from app.context import PathfinderRequest, PathfinderContext
 from app.core.vector import Vector2D
 from app.exception import PathPointIsUnsafeException
 from app.pathfinder.astar import AStar
@@ -11,12 +11,12 @@ from app.pathfinder.tracer import TracerInfo
 from app.world.world import World, WorldElement
 
 PATHFINDERS = {
-    PathfinderRequest.AStar: AStar,
+    PathfinderRequest.ASTAR: AStar,
     PathfinderRequest.JPS: JPS
 }
 
 
-def build_trace_info(world: World, context: Context) -> TracerInfo:
+def build_trace_info(world: World, context: PathfinderContext) -> TracerInfo:
     """
     Builds TracerInfo object based on the given world and context.
     :param world: the world object representing the environment
@@ -24,13 +24,15 @@ def build_trace_info(world: World, context: Context) -> TracerInfo:
     :return: TracerInfo object containing tracing information
     """
 
-    start = world.get(context.start)
-    end = world.get(context.end)
+    start_point = context.start
+    start = world.get(start_point)
+    end_point = context.end
+    end = world.get(end_point)
     pathfinder = context.pathfinder
     distance = context.distance
     trajectory = context.trajectory
 
-    check_points(context.start, context.end, start, end)
+    check_points(start_point, end_point, start, end)
 
     pathfinder = PATHFINDERS[pathfinder](world.graph(), distance, start, end, context.start, context.end, trajectory)
     return pathfinder.search()

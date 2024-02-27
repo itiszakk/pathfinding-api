@@ -77,6 +77,8 @@ class WorldImage:
         :param draw: drawing context
         """
 
+        border_size = self.context.world_context.border_size
+
         elements = self.world.get_elements()
 
         for element in elements:
@@ -85,7 +87,7 @@ class WorldImage:
             x1, y1 = cell.position.x + cell.w - 1, cell.position.y + cell.h - 1
             color = self.get_color(cell)
 
-            draw.rectangle((x0, y0, x1, y1), fill=color, outline=Color.BORDER, width=self.context.border_size)
+            draw.rectangle((x0, y0, x1, y1), fill=color, outline=Color.BORDER, width=border_size)
 
     def get_color(self, cell: Cell):
         """
@@ -130,7 +132,7 @@ class WorldImage:
         :param p: the point to be drawn
         """
 
-        point_size = self.context.point_size
+        point_size = self.context.pathfinder_context.point_size
 
         x0, y0 = p.x - point_size, p.y - point_size
         x1, y1 = p.x + point_size, p.y + point_size
@@ -145,4 +147,5 @@ class WorldImage:
         :param p1: ending point of the line
         """
 
-        draw.line((p0.x, p0.y, p1.x, p1.y), fill=Color.TRAJECTORY, width=self.context.trajectory_size)
+        trajectory_size = self.context.pathfinder_context.trajectory_size
+        draw.line((p0.x, p0.y, p1.x, p1.y), fill=Color.TRAJECTORY, width=trajectory_size)

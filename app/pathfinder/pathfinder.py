@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.core.direction import Direction
 from app.core.distance import Distance
 from app.core.graph import Graph
 from app.core.trajectory import Trajectory
@@ -57,32 +56,6 @@ class Pathfinder(ABC):
         tracer = Tracer(self.start, self.start_point, self.end, self.end_point, self.trajectory)
         return tracer.backtrace(visited)
 
-    @staticmethod
-    def direction(current: WorldElement, parent: WorldElement):
-        """
-        Determines the direction from current node to its parent node
-        :param current: the current node
-        :param parent: the parent node
-        :return: the direction from current node to its parent node
-        """
-
-        cx, cy = current.get_cell().center()
-        px, py = parent.get_cell().center()
-
-        dx = cx - px
-        dy = cy - py
-
-        if dx != 0 and dy != 0:
-            if dx > 0:
-                return Direction.SE if dy > 0 else Direction.NE
-            else:
-                return Direction.SW if dy > 0 else Direction.NW
-        else:
-            if dx != 0:
-                return Direction.E if dx > 0 else Direction.W
-            elif dy != 0:
-                return Direction.S if dy > 0 else Direction.N
-
     def cost(self, e0: WorldElement, e1: WorldElement):
         """
         Calculates the cost between two adjacent nodes
@@ -109,11 +82,9 @@ class Pathfinder(ABC):
 
         return self.distance.calculate(p0, p1)
 
-    @classmethod
     @abstractmethod
-    def method(cls) -> dict[WorldElement, WorldElement]:
+    def method(self) -> dict[WorldElement, WorldElement]:
         """
         Abstract method representing the pathfinding algorithm to be implemented by subclasses
         :return: a dictionary representing the path found by the algorithm
         """
-        ...

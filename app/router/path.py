@@ -5,7 +5,7 @@ Path API module
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
-from app.context import WorldRequest, PathfinderRequest, Context
+from app.context import WorldRequest, PathfinderRequest, Context, PathfinderContext, WorldContext
 from app.core.distance import Distance
 from app.core.trajectory import Trajectory
 from app.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
@@ -16,8 +16,8 @@ from app.world.world_image import WorldImage
 router = APIRouter()
 
 SUPPORTED_PATHFINDERS = {
-    WorldRequest.Grid: [PathfinderRequest.AStar, PathfinderRequest.JPS],
-    WorldRequest.QTree: [PathfinderRequest.AStar]
+    WorldRequest.GRID: [PathfinderRequest.ASTAR, PathfinderRequest.JPS],
+    WorldRequest.QTREE: [PathfinderRequest.ASTAR]
 }
 
 DEFAULT_START = Query((0, 0))
@@ -54,22 +54,13 @@ def get_path_image(file: UploadFile,
     :return: StreamingResponse with the generated path image
     """
 
-    context = Context(file=file,
-                      world=world,
-                      pathfinder=pathfinder,
-                      distance=distance,
-                      trajectory=trajectory,
-                      cell_size=cell,
-                      border_size=border,
-                      trajectory_size=trajectory_size,
-                      point_size=point,
-                      start=start,
-                      end=end)
+    world_context = WorldContext(file, world, cell, border)
+    pathfinder_context = PathfinderContext(distance, pathfinder, trajectory, trajectory_size, point, start, end)
+    context = Context(world_context, pathfinder_context)
     check_context(context)
 
-    world = world_utils.build_world(context)
-
-    tracer_info = pathfinder_utils.build_trace_info(world, context)
+    world = world_utils.build_world(context.world_context)
+    tracer_info = pathfinder_utils.build_trace_info(world, context.pathfinder_context)
 
     image = WorldImage(world, context, tracer_info)
 
@@ -93,8 +84,11 @@ def check_pathfinder(context: Context):
     :raises PathfinderNotSupportWorldException: if selected pathfinder is not supported for the world type
     """
 
-    if context.pathfinder not in SUPPORTED_PATHFINDERS[context.world]:
-        raise PathfinderNotSupportWorldException(context.world, context.pathfinder)
+    world = context.world_context.world
+    pathfinder = context.pathfinder_context.pathfinder
+
+    if pathfinder not in SUPPORTED_PATHFINDERS[world]:
+        raise PathfinderNotSupportWorldException(world, pathfinder)
 
 
 def check_points(context: Context):
@@ -104,5 +98,8 @@ def check_points(context: Context):
     :raises PathPointsAreEqualException: if start and end points are equal
     """
 
-    if context.start == context.end:
+    start = context.pathfinder_context.start
+    end = context.pathfinder_context.end
+
+    if start == end:
         raise PathPointsAreEqualException()

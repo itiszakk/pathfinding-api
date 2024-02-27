@@ -47,28 +47,23 @@ class World(ABC):
 
         return graph
 
-    @classmethod
     @abstractmethod
-    def get_elements(cls) -> list[WorldElement]:
+    def get_elements(self) -> list[WorldElement]:
         """
         Abstract method to get all elements in the world
         :return: list of WorldElement objects representing all elements in the world
         """
-        ...
 
-    @classmethod
     @abstractmethod
-    def get(cls, point: Vector2D) -> WorldElement:
+    def get(self, point: Vector2D) -> WorldElement:
         """
         Abstract method to get a specific element in the world based on coordinates
         :param point: Vector2D representing the coordinates of the element
         :return: WorldElement object representing the element at the specified coordinates
         """
-        ...
 
-    @classmethod
     @abstractmethod
-    def neighbours(cls, element: WorldElement, direction: Direction) -> list[WorldElement]:
+    def neighbours(self, element: WorldElement, direction: Direction) -> list[WorldElement]:
         """
         Abstract method to get the neighbors of a specific element in the world.
         :param element: WorldElement object for which neighbors are to be determined
@@ -76,4 +71,3 @@ class World(ABC):
         :return: list of WorldElement objects
         representing the neighbors of the specified element in the specified direction
         """
-        ...
