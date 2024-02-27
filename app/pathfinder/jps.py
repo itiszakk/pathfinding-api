@@ -1,3 +1,7 @@
+"""
+Jump Point Search (JPS) module
+"""
+
 from collections import namedtuple
 
 from pqdict import pqdict
@@ -9,6 +13,10 @@ from app.world.world import WorldElement
 
 
 class JPS(Pathfinder):
+    """
+    A subclass of Pathfinder implementing the Jump Point Search (JPS) pathfinding algorithm
+    """
+
     Cardinal = namedtuple('Cardinal', ['v', 'h'])
 
     CARDINAL = {
@@ -30,10 +38,25 @@ class JPS(Pathfinder):
     }
 
     def __init__(self, graph, distance, start, end, start_point, end_point, trajectory):
+        """
+        Initializes the JPS object with specified parameters
+        :param graph: the graph structure for pathfinding
+        :param distance: the distance calculation method used by the pathfinding algorith
+        :param start: the starting world element
+        :param end: the ending world element
+        :param start_point: the starting element coordinates
+        :param end_point: the ending element coordinates
+        :param trajectory: the trajectory type for pathfinding visualization
+        """
         super().__init__(graph, distance, start, end, start_point, end_point, trajectory)
 
     @timing('JPS')
     def method(self):
+        """
+        Implements the Jump Point Search (JPS) pathfinding algorithm and returns the visited nodes
+        :return: A dictionary representing the visited nodes during pathfinding
+        """
+
         queue = pqdict({self.start: 0})
         cost_so_far = {self.start: 0}
         visited = {self.start: None}
@@ -61,6 +84,13 @@ class JPS(Pathfinder):
         return visited
 
     def successors(self, current: WorldElement, parent: WorldElement) -> list[WorldElement]:
+        """
+        Determines the successors of a given node in the search space
+        :param current: the current node being expanded
+        :param parent: the parent node of the current node
+        :return: a list of successor nodes
+        """
+
         successors = []
 
         neighbours = self.prune(current, parent)
@@ -74,6 +104,13 @@ class JPS(Pathfinder):
         return successors
 
     def prune(self, current: WorldElement, parent: WorldElement):
+        """
+        Prunes the search space by removing unnecessary successors
+        :param current: the current node being expanded
+        :param parent: the parent node of the current node
+        :return: a list of pruned neighbours
+        """
+
         if parent is None:
             return self.graph.neighbours(current)
 
@@ -140,6 +177,13 @@ class JPS(Pathfinder):
         return neighbours
 
     def jump(self, current: WorldElement, parent: WorldElement):
+        """
+        Jumps to a new node, stopping at jump points
+        :param current: the current node being expanded
+        :param parent: the parent node of the current node
+        :return: the next jump point
+        """
+        
         if current is None or current.unsafe():
             return None
 
@@ -164,7 +208,8 @@ class JPS(Pathfinder):
 
                 bottom = self.graph.neighbour(current, Direction.S)
                 prev_bottom = self.graph.neighbour(top, JPS.OPPOSITE[direction])
-                bottom_forced = bottom is not None and bottom.safe() and prev_bottom is not None and prev_bottom.unsafe()
+                bottom_forced = (bottom is not None and bottom.safe()
+                                 and prev_bottom is not None and prev_bottom.unsafe())
 
                 if top_forced or bottom_forced:
                     return current

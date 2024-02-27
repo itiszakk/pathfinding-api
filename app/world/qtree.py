@@ -1,3 +1,7 @@
+"""
+Quadtree module
+"""
+
 from __future__ import annotations
 
 from collections import deque
@@ -7,12 +11,15 @@ import numpy
 
 from app.core.cell import Cell, CellState
 from app.core.direction import Direction
-from app.core.vector import Vector2D
 from app.core.timing import timing
+from app.core.vector import Vector2D
 from app.world.world import World, WorldElement
 
 
 class Position(IntEnum):
+    """
+    Enumeration representing positions in the quadrants
+    """
     NW = 0
     NE = 1
     SW = 2
@@ -20,7 +27,19 @@ class Position(IntEnum):
 
 
 class QNode(WorldElement):
+    """
+    Represents a node in the Quadtree
+    """
+
     def __init__(self, pixels: numpy.ndarray, position: Vector2D, width, height):
+        """
+        Initializes a QNode with the specified parameters
+        :param pixels: the pixel array representing the node
+        :param position: the position vector of the node
+        :param width: the width of the node
+        :param height: the height of the node
+        """
+
         super().__init__(self)
         self.cell = Cell(pixels, position, width, height)
         self.depth = 0
@@ -28,12 +47,28 @@ class QNode(WorldElement):
         self.children = {}
 
     def get_cell(self) -> Cell:
+        """
+        Retrieves the cell associated with the node
+        :return: the cell associated with the node
+        """
+
         return self.cell
 
     def is_leaf(self) -> bool:
+        """
+        Checks if the node is a leaf node
+        :return: True if leaf node, False otherwise
+        """
+
         return not self.children
 
     def get(self, point: Vector2D) -> QNode | None:
+        """
+        Retrieves the node containing the specified point
+        :param point: the point to retrieve the node for
+        :return: the node containing the point if found, None otherwise
+        """
+
         if point is None:
             return None
 
@@ -45,11 +80,23 @@ class QNode(WorldElement):
                 return node.get(point)
 
     def add_child(self, node: QNode, position: Position):
+        """
+        Adds a child node to the current node
+        :param node: The child node to add
+        :param position: the position of the child node
+        """
+
         node.depth = self.depth + 1
         node.parent = self
         self.children[position] = node
 
     def divide(self, pixels: numpy.ndarray, min_size: int):
+        """
+        Divides the node into quadrants recursively
+        :param pixels: the pixel array
+        :param min_size: the minimum size for division
+        """
+
         x0, y0 = self.cell.position.x, self.cell.position.y
         w, h = self.cell.w, self.cell.h
 
@@ -70,6 +117,11 @@ class QNode(WorldElement):
             child.divide(pixels, min_size)
 
     def search(self) -> list[QNode]:
+        """
+        Performs a depth-first search to retrieve all leaf nodes
+        :return: list of all leaf nodes
+        """
+
         if self.is_leaf():
             return [self]
 
@@ -80,27 +132,60 @@ class QNode(WorldElement):
         return nodes
 
     def __hash__(self):
+        """
+        Hashing method for the QNode
+        :return: hash value
+        """
+
         return hash(id(self))
 
     def __repr__(self) -> str:
+        """
+        String representation of the QNode
+        :return: String representation
+        """
+
         return f'QNode(depth={self.depth}, cell={self.cell})'
 
 
 class QTree(World):
+    """
+    Represents a Quadtree
+    """
 
     @timing('QTree')
     def __init__(self, pixels, cell_size):
+        """
+        Initializes a Quadtree with the specified parameters
+        :param pixels: the pixel array
+        :param cell_size: the minimum size of each cell
+        """
+
         super().__init__(pixels, cell_size)
         self.root = QNode(pixels, Vector2D(0, 0), pixels.shape[1], pixels.shape[0])
         self.build_elements()
 
     def build_elements(self):
+        """
+        Builds elements for the Quadtree
+        """
+
         self.root.divide(self.pixels, self.cell_size)
 
     def get_elements(self) -> list[QNode]:
+        """
+        Retrieves all leaf nodes in the Quadtree
+        :return: list of all leaf nodes
+        """
+
         return self.root.search()
 
     def get_cells(self) -> list[Cell]:
+        """
+        Retrieves cells in the Quadtree
+        :return: list of all cells
+        """
+
         cells = []
         nodes = self.get_elements()
 
@@ -110,9 +195,22 @@ class QTree(World):
         return cells
 
     def get(self, point: Vector2D) -> QNode:
+        """
+        Retrieves the node containing the specified point
+        :param point: the point to retrieve the node for
+        :return: the node containing the point
+        """
+
         return self.root.get(point)
 
     def neighbours(self, element: QNode, direction: Direction) -> list[QNode]:
+        """
+        Retrieves neighboring nodes of the specified node in the given direction
+        :param element: the node to find neighbors for
+        :param direction: the direction to search for neighbors
+        :return: list of neighboring nodes
+        """
+
         if direction.is_diagonal():
             diagonal_neighbour = self.diagonal_neighbour(element, direction)
             return [diagonal_neighbour] if diagonal_neighbour is not None else []
@@ -120,6 +218,13 @@ class QTree(World):
         return self.cardinal_neighbours(element, direction)
 
     def cardinal_neighbours(self, element: QNode, direction: Direction) -> list[QNode]:
+        """
+        Retrieves cardinal neighbors of the specified node in the given direction
+        :param element: the node to find neighbors for
+        :param direction: the direction to search for neighbors
+        :return: list of cardinal neighbors
+        """
+
         equal_or_greater = self.get_equal_or_greater_neighbour(element, direction)
         candidates = self.get_smaller_neighbours(equal_or_greater, direction)
 
@@ -133,6 +238,13 @@ class QTree(World):
         return neighbours
 
     def diagonal_neighbour(self, element: QNode, direction: Direction) -> QNode:
+        """
+        Retrieves the diagonal neighbor of the specified node in the given direction
+        :param element: the node to find the diagonal neighbor for
+        :param direction: the direction to search for the diagonal neighbor
+        :return: the diagonal neighbor
+        """
+
         point = None
 
         match direction:
@@ -148,6 +260,13 @@ class QTree(World):
         return self.get(point)
 
     def get_equal_or_greater_neighbour(self, element: QNode, direction: Direction) -> QNode | None:
+        """
+        Retrieves the equal or greater neighbor of the specified node in the given direction
+        :param element: the node to find the equal or greater neighbor for
+        :param direction: the direction to search for the equal or greater neighbor
+        :return: the equal or greater neighbor
+        """
+
         if element.parent is None:
             return None
 
@@ -217,6 +336,13 @@ class QTree(World):
                 return next_element.children[Position.SE]
 
     def get_smaller_neighbours(self, element: QNode, direction: Direction) -> list[QNode]:
+        """
+        Retrieves smaller neighbors of the specified node in the given direction
+        :param element: the node to find neighbors for
+        :param direction: the direction to search for neighbors
+        :return: list of smaller neighbors
+        """
+
         neighbours = []
         candidates = deque()
 

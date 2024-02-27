@@ -1,8 +1,15 @@
+"""
+This module configures and runs the FastAPI application
+"""
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.router import world, path
+
+APPLICATION_HOST = "localhost"
+APPLICATION_PORT = 8080
 
 app = FastAPI()
 
@@ -17,5 +24,13 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
+
+def main():
+    """
+    Entry point for running the FastAPI application
+    """
+    uvicorn.run(app, host=APPLICATION_HOST, port=APPLICATION_PORT)
+
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8080)
+    main()

@@ -1,4 +1,13 @@
+"""
+Color configuration module
+"""
+
+
 class Color:
+    """
+    Enumerates RGB color codes for various elements used in visualization
+    """
+
     UNSAFE = (0, 0, 0)
     MIXED = (102, 102, 102)
     SAFE = (255, 255, 255)

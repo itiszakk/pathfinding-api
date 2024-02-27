@@ -1,15 +1,26 @@
+"""
+Direction module
+"""
+
 from __future__ import annotations
 
 from enum import Enum, auto
 
 
 class DirectionType(Enum):
+    """
+    Enumerates types of directions
+    """
     Vertical = auto()
     Horizontal = auto()
     Diagonal = auto()
 
 
 class Direction(Enum):
+    """
+    Enumerates specific directions
+    """
+
     N = auto()
     E = auto()
     S = auto()
@@ -20,6 +31,10 @@ class Direction(Enum):
     SE = auto()
 
     def opposite(self):
+        """
+        Returns the opposite direction
+        :return: the opposite direction
+        """
         if self is Direction.N:
             return Direction.S
         elif self is Direction.S:
@@ -38,6 +53,10 @@ class Direction(Enum):
             return Direction.NE
 
     def get_type(self) -> DirectionType:
+        """
+        Returns the type of direction
+        :return: the type of direction
+        """
         if self is Direction.N or self is Direction.S:
             return DirectionType.Vertical
         elif self is Direction.W or self is Direction.E:
@@ -46,10 +65,22 @@ class Direction(Enum):
         return DirectionType.Diagonal
 
     def is_diagonal(self):
+        """
+        Checks if the direction is diagonal
+        :return: True if diagonal, False otherwise
+        """
         return self.get_type() is DirectionType.Diagonal
 
     def is_vertical(self):
+        """
+        Checks if the direction is vertical
+        :return: True if vertical, False otherwise
+        """
         return self.get_type() is DirectionType.Vertical
 
     def is_horizontal(self):
+        """
+        Checks if the direction is horizontal
+        :return: True if horizontal, False otherwise
+        """
         return self.get_type() is DirectionType.Horizontal

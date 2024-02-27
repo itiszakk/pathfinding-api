@@ -1,15 +1,25 @@
+"""
+Tracer module
+"""
+
 from itertools import pairwise
 
 from shapely import geometry
 
 from app.core.cell import Cell
-from app.core.vector import Vector2D
 from app.core.timing import timing
 from app.core.trajectory import Trajectory
+from app.core.vector import Vector2D
 from app.world.world_element import WorldElement
 
 
 def line_intersection(a, b) -> Vector2D | None:
+    """
+    Calculates the intersection point between two lines
+    :param a: the first line
+    :param b: the second line
+    :return: Intersection point if exists, None otherwise
+    """
     a = geometry.LineString(a)
     b = geometry.LineString(b)
 
@@ -21,7 +31,18 @@ def line_intersection(a, b) -> Vector2D | None:
 
 
 class TracerInfo:
+    """
+    Encapsulates tracer information
+    """
+
     def __init__(self, visited: list[Cell], path: list[Cell], points: list[Vector2D]):
+        """
+        Initializes TracerInfo object
+        :param visited: list of visited cells during tracing
+        :param path: list of cells representing the path
+        :param points: list of points representing the path
+        """
+
         self.visited = visited
         self.path = path
         self.points = points
@@ -31,8 +52,21 @@ class TracerInfo:
 
 
 class Tracer:
+    """
+    Class to trace back the path from end to start.
+    """
+
     def __init__(self, start: WorldElement, start_point: Vector2D, end: WorldElement, end_point: Vector2D,
                  trajectory: Trajectory):
+        """
+        Initializes Tracer object
+        :param start: the starting world element
+        :param start_point: the starting point coordinates
+        :param end: the ending world element
+        :param end_point: the ending point coordinates
+        :param trajectory: the trajectory type for pathfinding visualization
+        """
+
         self.start = start
         self.start_point = start_point
         self.end = end
@@ -41,6 +75,12 @@ class Tracer:
 
     @timing('Tracing')
     def backtrace(self, visited: dict[WorldElement, WorldElement]) -> TracerInfo:
+        """
+        Traces back the path from end to start based on visited nodes
+        :param visited: Dictionary representing visited nodes during pathfinding
+        :return: TracerInfo object encapsulating tracing information
+        """
+
         visited_cells = [v.get_cell() for v in visited.keys()]
         path_cells = []
         points = []
@@ -63,7 +103,14 @@ class Tracer:
 
         return TracerInfo(visited_cells, path_cells, points)
 
-    def smooth_points(self, path_cells, points):
+    def smooth_points(self, path_cells: list[Cell], points: list[Vector2D]):
+        """
+        Smoothes the path by adjusting points to reduce sharp turns
+        :param path_cells: list of cells representing the path
+        :param points: list of points representing the path
+        :return: smoothed list of points
+        """
+
         smooth_points = [self.end_point]
 
         for index, trajectory in enumerate(pairwise(points)):
