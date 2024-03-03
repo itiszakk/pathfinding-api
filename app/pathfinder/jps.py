@@ -37,19 +37,6 @@ class JPS(Pathfinder):
         Direction.SW: Direction.NE
     }
 
-    def __init__(self, graph, distance, start, end, start_point, end_point, trajectory):
-        """
-        Initializes the JPS object with specified parameters
-        :param graph: the graph structure for pathfinding
-        :param distance: the distance calculation method used by the pathfinding algorith
-        :param start: the starting world element
-        :param end: the ending world element
-        :param start_point: the starting element coordinates
-        :param end_point: the ending element coordinates
-        :param trajectory: the trajectory type for pathfinding visualization
-        """
-        super().__init__(graph, distance, start, end, start_point, end_point, trajectory)
-
     @timing('JPS')
     def method(self):
         """
