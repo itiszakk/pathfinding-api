@@ -6,10 +6,10 @@ import numpy
 from PIL import Image
 from fastapi import UploadFile
 
-from app.context import WorldRequest, WorldContext
-from app.world.grid import Grid
-from app.world.qtree import QTree
-from app.world.world import World
+from pathfinding.context import WorldRequest, WorldContext
+from pathfinding.world.grid import Grid
+from pathfinding.world.qtree import QTree
+from pathfinding.world.world import World
 
 IMAGE_MODE = 'RGB'
 

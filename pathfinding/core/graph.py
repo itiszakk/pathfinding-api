@@ -2,8 +2,8 @@
 Graph module
 """
 
-from app.core.direction import Direction
-from app.world.world_element import WorldElement
+from pathfinding.core.direction import Direction
+from pathfinding.world.world_element import WorldElement
 
 
 class Graph:

@@ -2,13 +2,13 @@
 Pathfinder utilities module
 """
 
-from app.context import PathfinderRequest, PathfinderContext
-from app.core.vector import Vector2D
-from app.exception import PathPointIsUnsafeException
-from app.pathfinder.astar import AStar
-from app.pathfinder.jps import JPS
-from app.pathfinder.tracer import TracerInfo
-from app.world.world import World, WorldElement
+from pathfinding.context import PathfinderRequest, PathfinderContext
+from pathfinding.core.vector import Vector2D
+from pathfinding.exception import PathPointIsUnsafeException
+from pathfinding.pathfinder.astar import AStar
+from pathfinding.pathfinder.jps import JPS
+from pathfinding.pathfinder.tracer import TracerInfo
+from pathfinding.world.world import World, WorldElement
 
 PATHFINDERS = {
     PathfinderRequest.ASTAR: AStar,

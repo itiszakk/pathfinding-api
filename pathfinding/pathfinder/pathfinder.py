@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.core.distance import Distance
-from app.core.graph import Graph
-from app.core.trajectory import Trajectory
-from app.core.vector import Vector2D
-from app.pathfinder.tracer import Tracer
-from app.world.world_element import WorldElement
+from pathfinding.core.distance import Distance
+from pathfinding.core.graph import Graph
+from pathfinding.core.trajectory import Trajectory
+from pathfinding.core.vector import Vector2D
+from pathfinding.pathfinder.tracer import Tracer
+from pathfinding.world.world_element import WorldElement
 
 
 class Pathfinder(ABC):

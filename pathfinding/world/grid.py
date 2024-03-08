@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import numpy
 
-from app.core.cell import Cell
-from app.core.direction import Direction
-from app.core.timing import timing
-from app.core.vector import Vector2D
-from app.world.world import World, WorldElement
+from pathfinding.core.cell import Cell, CellState
+from pathfinding.core.direction import Direction
+from pathfinding.core.timing import timing
+from pathfinding.core.vector import Vector2D
+from pathfinding.world.world import World, WorldElement
 
 
 class GridElement(WorldElement):
@@ -91,8 +91,8 @@ class Grid(World):
 
             for j in range(self.rows):
                 position = Vector2D(i * self.cell_size, j * self.cell_size)
-                element = GridElement(index=Vector2D(i, j),
-                                      cell=Cell(self.pixels, position, self.cell_size, self.cell_size))
+                state = CellState.of(self.pixels, position, Vector2D(self.cell_size, self.cell_size))
+                element = GridElement(Vector2D(i, j), Cell(position, self.cell_size, self.cell_size, state))
                 sub.append(element)
 
             self.elements.append(sub)

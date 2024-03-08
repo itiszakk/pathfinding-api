@@ -6,7 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.router import world, path
+from pathfinding.router import world, path
 
 APPLICATION_HOST = "localhost"
 APPLICATION_PORT = 8080

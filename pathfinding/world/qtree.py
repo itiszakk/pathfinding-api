@@ -9,11 +9,11 @@ from enum import IntEnum
 
 import numpy
 
-from app.core.cell import Cell, CellState
-from app.core.direction import Direction
-from app.core.timing import timing
-from app.core.vector import Vector2D
-from app.world.world import World, WorldElement
+from pathfinding.core.cell import Cell, CellState
+from pathfinding.core.direction import Direction
+from pathfinding.core.timing import timing
+from pathfinding.core.vector import Vector2D
+from pathfinding.world.world import World, WorldElement
 
 
 class Position(IntEnum):
@@ -41,7 +41,7 @@ class QNode(WorldElement):
         """
 
         super().__init__(self)
-        self.cell = Cell(pixels, position, width, height)
+        self.cell = Cell(position, width, height, CellState.of(pixels, position, Vector2D(width, height)))
         self.depth = 0
         self.parent: QNode | None = None
         self.children = {}

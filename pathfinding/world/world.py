@@ -8,11 +8,11 @@ from abc import ABC, abstractmethod
 
 import numpy
 
-from app.core.direction import Direction
-from app.core.graph import Graph
-from app.core.timing import timing
-from app.core.vector import Vector2D
-from app.world.world_element import WorldElement
+from pathfinding.core.direction import Direction
+from pathfinding.core.graph import Graph
+from pathfinding.core.timing import timing
+from pathfinding.core.vector import Vector2D
+from pathfinding.world.world_element import WorldElement
 
 
 class World(ABC):

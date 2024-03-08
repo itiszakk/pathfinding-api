@@ -5,7 +5,7 @@ World element module
 from abc import ABC, abstractmethod
 from typing import Any
 
-from app.core.cell import Cell
+from pathfinding.core.cell import Cell
 
 
 class WorldElement(ABC):

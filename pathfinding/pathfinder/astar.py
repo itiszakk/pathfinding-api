@@ -4,8 +4,8 @@ A* module
 
 from pqdict import pqdict
 
-from app.core.timing import timing
-from app.pathfinder.pathfinder import Pathfinder
+from pathfinding.core.timing import timing
+from pathfinding.pathfinder.pathfinder import Pathfinder
 
 
 class AStar(Pathfinder):

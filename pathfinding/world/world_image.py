@@ -9,13 +9,13 @@ from itertools import pairwise
 
 from PIL import Image, ImageDraw
 
-from app.context import Context
-from app.core.cell import Cell
-from app.core.color import Color
-from app.core.timing import timing
-from app.core.vector import Vector2D
-from app.pathfinder.tracer import TracerInfo
-from app.world.world import World
+from pathfinding.context import Context
+from pathfinding.core.cell import Cell
+from pathfinding.core.color import Color
+from pathfinding.core.timing import timing
+from pathfinding.core.vector import Vector2D
+from pathfinding.pathfinder.tracer import TracerInfo
+from pathfinding.world.world import World
 
 
 class WorldImage:

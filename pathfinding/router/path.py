@@ -5,13 +5,13 @@ Path API module
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
-from app.context import WorldRequest, PathfinderRequest, Context, PathfinderContext, WorldContext
-from app.core.distance import Distance
-from app.core.trajectory import Trajectory
-from app.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
-from app.pathfinder import utils as pathfinder_utils
-from app.world import utils as world_utils
-from app.world.world_image import WorldImage
+from pathfinding.context import WorldRequest, PathfinderRequest, Context, PathfinderContext, WorldContext
+from pathfinding.core.distance import Distance
+from pathfinding.core.trajectory import Trajectory
+from pathfinding.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
+from pathfinding.pathfinder import utils as pathfinder_utils
+from pathfinding.world import utils as world_utils
+from pathfinding.world.world_image import WorldImage
 
 router = APIRouter()
 

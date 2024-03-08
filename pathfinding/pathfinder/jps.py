@@ -6,10 +6,10 @@ from collections import namedtuple
 
 from pqdict import pqdict
 
-from app.core.direction import Direction
-from app.core.timing import timing
-from app.pathfinder.pathfinder import Pathfinder
-from app.world.world import WorldElement
+from pathfinding.core.direction import Direction
+from pathfinding.core.timing import timing
+from pathfinding.pathfinder.pathfinder import Pathfinder
+from pathfinding.world.world import WorldElement
 
 
 class JPS(Pathfinder):

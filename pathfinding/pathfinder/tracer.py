@@ -6,11 +6,11 @@ from itertools import pairwise
 
 from shapely import geometry
 
-from app.core.cell import Cell
-from app.core.timing import timing
-from app.core.trajectory import Trajectory
-from app.core.vector import Vector2D
-from app.world.world_element import WorldElement
+from pathfinding.core.cell import Cell
+from pathfinding.core.timing import timing
+from pathfinding.core.trajectory import Trajectory
+from pathfinding.core.vector import Vector2D
+from pathfinding.world.world_element import WorldElement
 
 
 def line_intersection(a, b) -> Vector2D | None:

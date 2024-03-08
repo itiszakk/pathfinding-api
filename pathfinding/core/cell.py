@@ -8,8 +8,8 @@ from enum import Enum
 
 import numpy
 
-from app.core.color import Color
-from app.core.vector import Vector2D
+from pathfinding.core.color import Color
+from pathfinding.core.vector import Vector2D
 
 
 class CellState(Enum):
@@ -27,15 +27,19 @@ class CellState(Enum):
     UNSAFE = 2, Color.UNSAFE
 
     @staticmethod
-    def of(pixels: numpy.ndarray) -> CellState:
+    def of(pixels: numpy.ndarray, position: Vector2D, size: Vector2D) -> CellState:
         """
-        Determines cell state by pixels slice
-        :param pixels: pixels slice
+        Determines cell state by parameters
+        :param pixels: image pixels
+        :param position: start position
+        :param size: cell size
         :return: cell state
         """
 
-        any_safe = numpy.any(pixels == Color.SAFE)
-        any_unsafe = numpy.any(pixels == Color.UNSAFE)
+        pixels_slice = pixels[position.y:position.y + size.y, position.x:position.x + size.x]
+
+        any_safe = numpy.any(pixels_slice == Color.SAFE)
+        any_unsafe = numpy.any(pixels_slice == Color.UNSAFE)
 
         if any_safe and not any_unsafe:
             return CellState.SAFE
@@ -51,20 +55,19 @@ class Cell:
     Represents a single cell.
     """
 
-    def __init__(self, pixels: numpy.ndarray, position: Vector2D, width, height):
+    def __init__(self, position: Vector2D, width: int, height: int, state: CellState = CellState.SAFE):
         """
         Initializes a cell with given parameters
-        :param pixels: image pixels
         :param position: cell position
         :param width: cell width
         :param height: cell height
+        :param state: cell state
         """
 
         self.position = position
         self.w = width
         self.h = height
-        self.state = CellState.of(
-            pixels[self.position.y:self.position.y + self.h, self.position.x:self.position.x + self.w])
+        self.state = state
 
     def contains(self, point: Vector2D) -> bool:
         """

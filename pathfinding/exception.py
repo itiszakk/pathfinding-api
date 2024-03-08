@@ -4,8 +4,8 @@ This module defines custom HTTP exceptions
 
 from fastapi import HTTPException
 
-from app.context import WorldRequest, PathfinderRequest
-from app.core.vector import Vector2D
+from pathfinding.context import WorldRequest, PathfinderRequest
+from pathfinding.core.vector import Vector2D
 
 
 class PathfinderNotSupportWorldException(HTTPException):
