@@ -20,7 +20,7 @@ class Graph:
 
     def create_edge(self, origin: WorldElement, direction: Direction, destinations: list[WorldElement]):
         """
-        Creates an edge between the origin element and its destinations in the specified direction
+        Creates an edge between the origin element and its safe destinations in the specified direction
         :param origin: origin world element
         :param direction: edge direction
         :param destinations: destinations connected by the edge
@@ -29,7 +29,7 @@ class Graph:
         if origin not in self.graph:
             self.graph[origin] = {}
 
-        self.graph[origin][direction] = destinations
+        self.graph[origin][direction] = [destination for destination in destinations if destination.safe()]
 
     def neighbour(self, element: WorldElement, direction: Direction) -> WorldElement | None:
         """
