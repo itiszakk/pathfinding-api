@@ -107,4 +107,4 @@ class Cell:
         :return: string representation of the cell
         """
 
-        return f'Cell(state={self.state}, position=({self.position}), w={self.w}, h={self.h})'
+        return f'Cell(state={self.state}, position={self.position}, w={self.w}, h={self.h})'
