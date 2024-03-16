@@ -26,8 +26,8 @@ def upload_image_to_array(upload: UploadFile) -> numpy.ndarray:
     :return: numpy array representing the image
     """
 
-    image = Image.open(upload.file).convert(IMAGE_MODE)  # Open and convert the image
-    return numpy.array(image)  # Convert the image to a numpy array
+    image = Image.open(upload.file).convert(IMAGE_MODE)
+    return numpy.array(image)
 
 
 def build_world(context: WorldContext) -> World:

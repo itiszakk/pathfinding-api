@@ -37,15 +37,12 @@ class CellState(Enum):
         """
 
         pixels_slice = pixels[position.y:position.y + size.y, position.x:position.x + size.x]
+        unsafe_pixels = numpy.count_nonzero(numpy.all(pixels_slice == Color.UNSAFE, axis=2))
 
-        any_safe = numpy.any(pixels_slice == Color.SAFE)
-        any_unsafe = numpy.any(pixels_slice == Color.UNSAFE)
-
-        if any_safe and not any_unsafe:
-            return CellState.SAFE
-
-        if not any_safe and any_unsafe:
+        if unsafe_pixels == pixels_slice.shape[0] * pixels_slice.shape[1]:
             return CellState.UNSAFE
+        elif unsafe_pixels == 0:
+            return CellState.SAFE
 
         return CellState.MIXED
 
@@ -76,8 +73,8 @@ class Cell:
         :return: True if contained, False otherwise
         """
 
-        x_contains = self.position.x <= point.x < self.position.x + self.w
-        y_contains = self.position.y <= point.y < self.position.y + self.h
+        x_contains = self.position.x <= point.x <= self.position.x + self.w
+        y_contains = self.position.y <= point.y <= self.position.y + self.h
         return x_contains and y_contains
 
     def center(self) -> Vector2D:

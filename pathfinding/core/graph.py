@@ -39,30 +39,19 @@ class Graph:
         :return: neighbour element if exists, None otherwise
         """
 
-        if element is None:
-            return None
-
-        neighbours = self.graph[element][direction]
+        neighbours = self.graph.get(element, {}).get(direction, [])
         return neighbours[0] if neighbours else None
 
-    def neighbours(self, element: WorldElement, safe=True) -> list[WorldElement]:
+    def neighbours(self, element: WorldElement) -> list[WorldElement]:
         """
         Returns the neighbours of the given element, optionally filtering out unsafe neighbours
         :param element: the element for which to find neighbours
-        :param safe: filter out unsafe neighbours. Defaults to True
         :return: a list of neighbours
         """
 
-        if element is None:
-            return []
-
         neighbours = []
 
-        for candidates in self.graph[element].values():
-            for candidate in candidates:
-                if safe and candidate.unsafe():
-                    continue
-
-                neighbours.append(candidate)
+        for direction in self.graph.get(element, []):
+            neighbours.extend(self.graph[element][direction])
 
         return neighbours
