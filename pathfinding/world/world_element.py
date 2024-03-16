@@ -2,7 +2,7 @@
 World element module
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any
 
 from pathfinding.core.cell import Cell
@@ -35,9 +35,12 @@ class WorldElement(ABC):
         """
         return self.get_cell().unsafe()
 
-    @abstractmethod
-    def get_cell(self) -> Cell:
+    def get_cell(self) -> Cell | None:
         """
         Abstract method to get the cell associated with the element
         :return: Cell object representing the cell associated with the element
         """
+        return None
+
+    def __repr__(self):
+        return f'WorldElement(entity={self.entity})'
