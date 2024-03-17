@@ -6,6 +6,14 @@ import time
 from functools import wraps
 
 
+def time_in_milliseconds() -> int:
+    """
+    Return the current time in milliseconds since the Epoch
+    :return: milliseconds
+    """
+    return round(time.time() * 1000)
+
+
 def timing(message):
     """
     Decorator function for measuring the execution time of a wrapped function
@@ -16,11 +24,11 @@ def timing(message):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            start_time = time.time()
+            start_time = time_in_milliseconds()
             result = func(*args, **kwargs)
-            end_time = time.time()
+            end_time = time_in_milliseconds()
 
-            print(f'{message}: {end_time - start_time} sec')
+            print(f'{message}: {end_time - start_time} ms')
 
             return result
 
