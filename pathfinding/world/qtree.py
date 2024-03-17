@@ -149,7 +149,15 @@ class QNode(WorldElement):
         :return: hash value
         """
 
-        return hash(id(self))
+        return hash(self.code)
+
+    def __eq__(self, other):
+        """
+        Equals method for the QNode
+        :return: True if equals, false otherwise
+        """
+
+        return self.code == other.code
 
     def __repr__(self) -> str:
         """
@@ -240,14 +248,7 @@ class QTree(World):
         equal_or_greater = self.get_equal_or_greater_neighbour(element, direction)
         candidates = self.get_smaller_neighbours(equal_or_greater, direction)
 
-        neighbours = []
-
-        for candidate in candidates:
-
-            if candidate is not None:
-                neighbours.append(candidate)
-
-        return neighbours
+        return [candidate for candidate in candidates if candidate is not None]
 
     def diagonal_neighbour(self, element: QNode, direction: Direction) -> QNode:
         """
@@ -279,74 +280,76 @@ class QTree(World):
         :return: the equal or greater neighbor
         """
 
-        if element.parent is None:
+        parent = element.parent
+
+        if parent is None:
             return None
 
         match direction:
             case Direction.N:
-                if element == element.parent.children[Position.SW]:
-                    return element.parent.children[Position.NW]
+                if element == parent.children[Position.SW]:
+                    return parent.children[Position.NW]
 
-                if element == element.parent.children[Position.SE]:
-                    return element.parent.children[Position.NE]
+                if element == parent.children[Position.SE]:
+                    return parent.children[Position.NE]
 
-                next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
+                next_element = self.get_equal_or_greater_neighbour(parent, direction)
 
                 if next_element is None or next_element.is_leaf():
                     return next_element
 
-                if element == element.parent.children[Position.NW]:
+                if element == parent.children[Position.NW]:
                     return next_element.children[Position.SW]
 
                 return next_element.children[Position.SE]
 
             case Direction.E:
-                if element == element.parent.children[Position.NW]:
-                    return element.parent.children[Position.NE]
+                if element == parent.children[Position.NW]:
+                    return parent.children[Position.NE]
 
-                if element == element.parent.children[Position.SW]:
-                    return element.parent.children[Position.SE]
+                if element == parent.children[Position.SW]:
+                    return parent.children[Position.SE]
 
-                next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
+                next_element = self.get_equal_or_greater_neighbour(parent, direction)
 
                 if next_element is None or next_element.is_leaf():
                     return next_element
 
-                if element == element.parent.children[Position.NE]:
+                if element == parent.children[Position.NE]:
                     return next_element.children[Position.NW]
 
                 return next_element.children[Position.SW]
 
             case Direction.S:
-                if element == element.parent.children[Position.NW]:
-                    return element.parent.children[Position.SW]
+                if element == parent.children[Position.NW]:
+                    return parent.children[Position.SW]
 
-                if element == element.parent.children[Position.NE]:
-                    return element.parent.children[Position.SE]
+                if element == parent.children[Position.NE]:
+                    return parent.children[Position.SE]
 
-                next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
+                next_element = self.get_equal_or_greater_neighbour(parent, direction)
 
                 if next_element is None or next_element.is_leaf():
                     return next_element
 
-                if element == element.parent.children[Position.SW]:
+                if element == parent.children[Position.SW]:
                     return next_element.children[Position.NW]
 
                 return next_element.children[Position.NE]
 
             case Direction.W:
-                if element == element.parent.children[Position.NE]:
-                    return element.parent.children[Position.NW]
+                if element == parent.children[Position.NE]:
+                    return parent.children[Position.NW]
 
-                if element == element.parent.children[Position.SE]:
-                    return element.parent.children[Position.SW]
+                if element == parent.children[Position.SE]:
+                    return parent.children[Position.SW]
 
-                next_element = self.get_equal_or_greater_neighbour(element.parent, direction)
+                next_element = self.get_equal_or_greater_neighbour(parent, direction)
 
                 if next_element is None or next_element.is_leaf():
                     return next_element
 
-                if element == element.parent.children[Position.NW]:
+                if element == parent.children[Position.NW]:
                     return next_element.children[Position.NE]
 
                 return next_element.children[Position.SE]
