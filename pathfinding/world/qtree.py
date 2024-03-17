@@ -42,9 +42,9 @@ class QNode(WorldElement):
 
         super().__init__(self)
         self.cell = Cell(position, width, height, CellState.of(pixels, position, Vector2D(width, height)))
-        self.depth = 0
+        self.code = ''
         self.parent: QNode | None = None
-        self.children = {}
+        self.children: list[QNode] = []
 
     def get_cell(self) -> Cell:
         """
@@ -75,11 +75,24 @@ class QNode(WorldElement):
         if self.is_leaf():
             return self
 
-        for node in self.children.values():
+        for node in self.children:
             if node.cell.contains(point):
                 return node.get(point)
 
         return None
+
+    def create_child(self, pixels: numpy.ndarray, w: int, h: int, position: Position) -> QNode:
+        x, y = self.cell.position.x, self.cell.position.y
+
+        match position:
+            case Position.NW:
+                return QNode(pixels, Vector2D(x, y), w, h)
+            case Position.NE:
+                return QNode(pixels, Vector2D(x + w, y), w + self.cell.w % 2, h)
+            case Position.SW:
+                return QNode(pixels, Vector2D(x, y + h), w, h + self.cell.h % 2)
+            case Position.SE:
+                return QNode(pixels, Vector2D(x + w, y + h), w + self.cell.w % 2, h + self.cell.h % 2)
 
     def add_child(self, node: QNode, position: Position):
         """
@@ -88,8 +101,11 @@ class QNode(WorldElement):
         :param position: the position of the child node
         """
 
-        node.depth = self.depth + 1
+        if not self.children:
+            self.children = [None, None, None, None]
+
         node.parent = self
+        node.code = self.code + str(position)
         self.children[position] = node
 
     def divide(self, pixels: numpy.ndarray, min_size: int):
@@ -99,23 +115,17 @@ class QNode(WorldElement):
         :param min_size: the minimum size for division
         """
 
-        x0, y0 = self.cell.position.x, self.cell.position.y
-        w, h = self.cell.w, self.cell.h
-
         if self.cell.state != CellState.MIXED:
             return
 
-        new_w, new_h = w // 2, h // 2
+        w, h = self.cell.w // 2, self.cell.h // 2
 
-        if new_w < min_size or new_h < min_size:
+        if w < min_size or h < min_size:
             return
 
-        self.add_child(QNode(pixels, Vector2D(x0, y0), new_w, new_h), Position.NW)
-        self.add_child(QNode(pixels, Vector2D(x0 + new_w, y0), new_w + w % 2, new_h), Position.NE)
-        self.add_child(QNode(pixels, Vector2D(x0, y0 + new_h), new_w, new_h + h % 2), Position.SW)
-        self.add_child(QNode(pixels, Vector2D(x0 + new_w, y0 + new_h), new_w + w % 2, new_h + h % 2), Position.SE)
-
-        for child in self.children.values():
+        for position in Position:
+            child = self.create_child(pixels, w, h, position)
+            self.add_child(child, position)
             child.divide(pixels, min_size)
 
     def search(self) -> list[QNode]:
@@ -128,7 +138,7 @@ class QNode(WorldElement):
             return [self]
 
         nodes = []
-        for node in self.children.values():
+        for node in self.children:
             nodes.extend(node.search())
 
         return nodes
@@ -147,7 +157,7 @@ class QNode(WorldElement):
         :return: String representation
         """
 
-        return f'QNode(depth={self.depth}, cell={self.cell})'
+        return f'QNode(#{self.code})'
 
 
 class QTree(World):
