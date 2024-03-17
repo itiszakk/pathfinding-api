@@ -2,6 +2,8 @@
 Path API module
 """
 
+import pathfinding.utils as utils
+
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
@@ -9,8 +11,6 @@ from pathfinding.context import WorldRequest, PathfinderRequest, Context, Pathfi
 from pathfinding.core.distance import Distance
 from pathfinding.core.trajectory import Trajectory
 from pathfinding.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
-from pathfinding.pathfinder import utils as pathfinder_utils
-from pathfinding.world import utils as world_utils
 from pathfinding.world.world_image import WorldImage
 
 router = APIRouter()
@@ -59,8 +59,10 @@ def get_path_image(file: UploadFile,
     context = Context(world_context, pathfinder_context)
     check_context(context)
 
-    world = world_utils.build_world(context.world_context)
-    tracer_info = pathfinder_utils.build_trace_info(world, context.pathfinder_context)
+    world = utils.build_world(context.world_context)
+    pathfinder = utils.build_pathfinder(world, context.pathfinder_context)
+
+    tracer_info = pathfinder.search()
 
     image = WorldImage(world, context, tracer_info)
 
