@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 import numpy
 
 from pathfinding.core.direction import Direction
-from pathfinding.core.graph import Graph
+from pathfinding.core.graph import Graph, Vertex
 from pathfinding.core.timing import timing
 from pathfinding.core.vector import Vector2D
 from pathfinding.world.world_element import WorldElement
@@ -43,7 +43,11 @@ class World(ABC):
 
         for element in elements:
             for direction in Direction:
-                graph.create_edge(element, direction, self.neighbours(element, direction))
+                neighbours = self.neighbours(element, direction)
+
+                graph.add_edge(origin=Vertex(element),
+                               direction=direction,
+                               destinations=[Vertex(neighbour) for neighbour in neighbours if neighbour.safe()])
 
         return graph
 

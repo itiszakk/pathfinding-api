@@ -42,5 +42,8 @@ class WorldElement(ABC):
         """
         return None
 
+    def __hash__(self):
+        return hash(self.entity)
+
     def __repr__(self):
         return f'WorldElement(entity={self.entity})'
