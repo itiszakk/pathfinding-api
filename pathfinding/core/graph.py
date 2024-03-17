@@ -3,7 +3,27 @@ Graph module
 """
 
 from pathfinding.core.direction import Direction
-from pathfinding.world.world_element import WorldElement
+
+
+class Vertex:
+    def __init__(self, entity):
+        self.entity = entity
+
+    def __hash__(self):
+        return hash(self.entity)
+
+    def __eq__(self, other):
+        return self.entity == other.entity
+
+    def __repr__(self):
+        return f'Vertex(#{self.__hash__()})'
+
+
+class Edge:
+    def __init__(self, origin: Vertex, direction: Direction, destination: Vertex):
+        self.origin = origin
+        self.direction = direction
+        self.destination = destination
 
 
 class Graph:
@@ -16,12 +36,12 @@ class Graph:
         Initializes the Graph object with an empty graph
         """
 
-        self.graph: dict[WorldElement, dict[Direction, list[WorldElement]]] = {}
+        self.graph: dict[Vertex, dict[Direction, list[Vertex]]] = {}
 
-    def create_edge(self, origin: WorldElement, direction: Direction, destinations: list[WorldElement]):
+    def add_edge(self, origin: Vertex, direction: Direction, destinations: list[Vertex]):
         """
-        Creates an edge between the origin element and its safe destinations in the specified direction
-        :param origin: origin world element
+        Creates an edge between the origin element and its destinations in the specified direction
+        :param origin: origin vertex
         :param direction: edge direction
         :param destinations: destinations connected by the edge
         """
@@ -29,23 +49,23 @@ class Graph:
         if origin not in self.graph:
             self.graph[origin] = {}
 
-        self.graph[origin][direction] = [destination for destination in destinations if destination.safe()]
+        self.graph[origin][direction] = destinations
 
-    def neighbour(self, element: WorldElement, direction: Direction) -> WorldElement | None:
+    def neighbour(self, element: Vertex, direction: Direction) -> Vertex | None:
         """
-        Returns the neighbour of the given element in the specified direction
-        :param element: the element for which to find a neighbour
+        Returns the neighbour of the given vertex in the specified direction
+        :param element: the vertex for which to find a neighbour
         :param direction: specified direction
-        :return: neighbour element if exists, None otherwise
+        :return: neighbour vertex if exists, None otherwise
         """
 
         neighbours = self.graph.get(element, {}).get(direction, [])
         return neighbours[0] if neighbours else None
 
-    def neighbours(self, element: WorldElement) -> list[WorldElement]:
+    def neighbours(self, element: Vertex) -> list[Vertex]:
         """
-        Returns the neighbours of the given element, optionally filtering out unsafe neighbours
-        :param element: the element for which to find neighbours
+        Returns the neighbours of the given vertex
+        :param element: the vertex for which to find neighbours
         :return: a list of neighbours
         """
 

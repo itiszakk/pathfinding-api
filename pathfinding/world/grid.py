@@ -42,7 +42,7 @@ class GridElement(WorldElement):
         :return: string representation
         """
 
-        return f'IndexedCell(index={self.entity}, cell={self.cell})'
+        return f'GridElement(entity={self.entity}, cell={self.cell})'
 
     def __hash__(self):
         """
@@ -90,10 +90,10 @@ class Grid(World):
             sub = []
 
             for j in range(self.rows):
+                index = Vector2D(i, j)
                 position = Vector2D(i * self.cell_size, j * self.cell_size)
                 state = CellState.of(self.pixels, position, Vector2D(self.cell_size, self.cell_size))
-                element = GridElement(Vector2D(i, j), Cell(position, self.cell_size, self.cell_size, state))
-                sub.append(element)
+                sub.append(GridElement(index, Cell(position, self.cell_size, self.cell_size, state)))
 
             self.elements.append(sub)
 

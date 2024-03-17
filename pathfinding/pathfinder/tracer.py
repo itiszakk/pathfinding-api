@@ -7,10 +7,10 @@ from itertools import pairwise
 from shapely import geometry
 
 from pathfinding.core.cell import Cell
+from pathfinding.core.graph import Vertex
 from pathfinding.core.timing import timing
 from pathfinding.core.trajectory import Trajectory
 from pathfinding.core.vector import Vector2D
-from pathfinding.world.world_element import WorldElement
 
 
 def line_intersection(a, b) -> Vector2D | None:
@@ -56,7 +56,7 @@ class Tracer:
     Class to trace back the path from end to start.
     """
 
-    def __init__(self, start: WorldElement, start_point: Vector2D, end: WorldElement, end_point: Vector2D,
+    def __init__(self, start: Vertex, start_point: Vector2D, end: Vertex, end_point: Vector2D,
                  trajectory: Trajectory):
         """
         Initializes Tracer object
@@ -74,21 +74,21 @@ class Tracer:
         self.trajectory = trajectory
 
     @timing('Tracing')
-    def backtrace(self, visited: dict[WorldElement, WorldElement]) -> TracerInfo:
+    def backtrace(self, visited: dict[Vertex, Vertex]) -> TracerInfo:
         """
         Traces back the path from end to start based on visited nodes
         :param visited: Dictionary representing visited nodes during pathfinding
         :return: TracerInfo object encapsulating tracing information
         """
 
-        visited_cells = [v.get_cell() for v in visited.keys()]
+        visited_cells = [v.entity.get_cell() for v in visited.keys()]
         path_cells = []
         points = []
 
         current = self.end
 
         while current in visited:
-            path_cells.append(current.get_cell())
+            path_cells.append(current.entity.get_cell())
             current = visited[current]
 
         points.append(self.end_point)

@@ -5,8 +5,8 @@ World API module
 from fastapi import APIRouter, UploadFile
 from starlette.responses import StreamingResponse
 
+import pathfinding.utils as utils
 from pathfinding.context import WorldRequest, WorldContext, Context
-from pathfinding.world import utils as world_utils
 from pathfinding.world.world_image import WorldImage
 
 router = APIRouter()
@@ -29,7 +29,7 @@ def get_image(file: UploadFile,
     """
 
     world_context = WorldContext(file, world, cell, border)
-    world = world_utils.build_world(world_context)
+    world = utils.build_world(world_context)
     image = WorldImage(world, Context(world_context))
 
     return StreamingResponse(image.stream(), media_type='image/png')
