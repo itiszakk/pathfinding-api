@@ -19,13 +19,6 @@ class Vertex:
         return f'Vertex(#{self.__hash__()})'
 
 
-class Edge:
-    def __init__(self, origin: Vertex, direction: Direction, destination: Vertex):
-        self.origin = origin
-        self.direction = direction
-        self.destination = destination
-
-
 class Graph:
     """
     Represents a graph structure for navigating through world elements
