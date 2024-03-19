@@ -2,12 +2,13 @@
 Graph module
 """
 
-from pathfinding.core.direction import Direction
+from pathfinding.core import Direction
 
 
 class Vertex:
-    def __init__(self, entity):
+    def __init__(self, entity, obstacle: bool = False):
         self.entity = entity
+        self.obstacle = obstacle
 
     def __hash__(self):
         return hash(self.entity)

@@ -2,16 +2,14 @@
 Path API module
 """
 
-import pathfinding.utils as utils
-
 from fastapi import APIRouter, UploadFile, Query
 from starlette.responses import StreamingResponse
 
+import pathfinding.utils as utils
 from pathfinding.context import WorldRequest, PathfinderRequest, Context, PathfinderContext, WorldContext
-from pathfinding.core.distance import Distance
-from pathfinding.core.trajectory import Trajectory
+from pathfinding.core import Distance, Trajectory
 from pathfinding.exception import PathfinderNotSupportWorldException, PathPointsAreEqualException
-from pathfinding.world.world_image import WorldImage
+from pathfinding.world import WorldImage
 
 router = APIRouter()
 

@@ -9,11 +9,8 @@ from enum import IntEnum
 
 import numpy
 
-from pathfinding.core.cell import Cell, CellState
-from pathfinding.core.direction import Direction
-from pathfinding.core.timing import timing
-from pathfinding.core.vector import Vector2D
-from pathfinding.world.world import World, WorldElement
+from pathfinding.core import Vector2D, CellState, Cell, Direction, timing
+from pathfinding.world import WorldElement, World
 
 
 class Position(IntEnum):
@@ -115,7 +112,7 @@ class QNode(WorldElement):
         :param min_size: the minimum size for division
         """
 
-        if self.cell.state != CellState.MIXED:
+        if not self.cell.mixed():
             return
 
         w, h = self.cell.w // 2, self.cell.h // 2

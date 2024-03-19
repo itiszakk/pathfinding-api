@@ -8,9 +8,7 @@ from enum import StrEnum
 
 from fastapi import UploadFile
 
-from pathfinding.core.distance import Distance
-from pathfinding.core.trajectory import Trajectory
-from pathfinding.core.vector import Vector2D
+from pathfinding.core import Distance, Trajectory, Vector2D
 
 
 class WorldRequest(StrEnum):

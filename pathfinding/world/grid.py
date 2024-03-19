@@ -6,11 +6,8 @@ from __future__ import annotations
 
 import numpy
 
-from pathfinding.core.cell import Cell, CellState
-from pathfinding.core.direction import Direction
-from pathfinding.core.timing import timing
-from pathfinding.core.vector import Vector2D
-from pathfinding.world.world import World, WorldElement
+from pathfinding.core import Vector2D, Cell, timing, CellState, Direction
+from pathfinding.world import WorldElement, World
 
 
 class GridElement(WorldElement):

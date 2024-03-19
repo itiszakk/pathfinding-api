@@ -1,9 +1,7 @@
 import numpy
 import pytest
 
-from pathfinding.core.cell import CellState
-from pathfinding.core.color import Color
-from pathfinding.core.vector import Vector2D
+from pathfinding.core.cell import CellState, Color, Vector2D
 
 
 @pytest.fixture

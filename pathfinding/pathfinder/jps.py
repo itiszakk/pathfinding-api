@@ -6,10 +6,8 @@ from collections import namedtuple
 
 from pqdict import pqdict
 
-from pathfinding.core.direction import Direction
-from pathfinding.core.timing import timing
-from pathfinding.pathfinder.pathfinder import Pathfinder
-from pathfinding.world.world import WorldElement
+from pathfinding.core import Direction, timing, Vertex
+from pathfinding.pathfinder import Pathfinder
 
 
 class JPS(Pathfinder):
@@ -70,7 +68,7 @@ class JPS(Pathfinder):
 
         return visited
 
-    def successors(self, current: WorldElement, parent: WorldElement) -> list[WorldElement]:
+    def successors(self, current: Vertex, parent: Vertex) -> list[Vertex]:
         """
         Determines the successors of a given node in the search space
         :param current: the current node being expanded
@@ -90,7 +88,7 @@ class JPS(Pathfinder):
 
         return successors
 
-    def prune(self, current: WorldElement, parent: WorldElement):
+    def prune(self, current: Vertex, parent: Vertex):
         """
         Prunes the search space by removing unnecessary successors
         :param current: the current node being expanded
@@ -106,20 +104,16 @@ class JPS(Pathfinder):
 
         if direction.is_diagonal():
             cardinal = JPS.CARDINAL[direction]
-
             vertical = self.graph.neighbour(current, cardinal.v)
-            vertical_safe = vertical is not None and vertical.safe()
-
             horizontal = self.graph.neighbour(current, cardinal.h)
-            horizontal_safe = horizontal is not None and horizontal.safe()
 
-            if vertical_safe:
+            if self.safe(vertical):
                 neighbours.append(vertical)
 
-            if horizontal_safe:
+            if self.safe(horizontal):
                 neighbours.append(horizontal)
 
-            if vertical_safe and horizontal_safe:
+            if self.safe(vertical) and self.safe(horizontal):
                 neighbours.append(self.graph.neighbour(current, direction))
         else:
             if direction.is_horizontal():
@@ -127,50 +121,50 @@ class JPS(Pathfinder):
                 top = self.graph.neighbour(current, Direction.N)
                 bottom = self.graph.neighbour(current, Direction.S)
 
-                if new is not None and new.safe():
+                if self.safe(new):
                     neighbours.append(new)
 
-                    if top is not None and top.safe():
+                    if self.safe(top):
                         neighbours.append(self.graph.neighbour(top, direction))
 
-                    if bottom is not None and bottom.safe():
+                    if self.safe(bottom):
                         neighbours.append(self.graph.neighbour(bottom, direction))
 
-                if top is not None and top.safe():
+                if self.safe(top):
                     neighbours.append(top)
 
-                if bottom is not None and bottom.safe():
+                if self.safe(bottom):
                     neighbours.append(bottom)
             elif direction.is_vertical():
                 new = self.graph.neighbour(current, direction)
                 left = self.graph.neighbour(current, Direction.W)
                 right = self.graph.neighbour(current, Direction.E)
 
-                if new is not None and new.safe():
+                if self.safe(new):
                     neighbours.append(new)
 
-                    if left is not None and left.safe():
+                    if self.safe(left):
                         neighbours.append(self.graph.neighbour(left, direction))
 
-                    if right is not None and right.safe():
+                    if self.safe(right):
                         neighbours.append((self.graph.neighbour(right, direction)))
 
-                if left is not None and left.safe():
+                if self.safe(left):
                     neighbours.append(left)
 
-                if right is not None and right.safe():
+                if self.safe(right):
                     neighbours.append(right)
 
         return neighbours
 
-    def jump(self, current: WorldElement, parent: WorldElement):
+    def jump(self, current: Vertex, parent: Vertex):
         """
         Jumps to a new node, stopping at jump points
         :param current: the current node being expanded
         :param parent: the parent node of the current node
         :return: the next jump point
         """
-        if current is None or current.unsafe():
+        if not self.safe(current):
             return None
 
         if current is self.end:
@@ -180,7 +174,6 @@ class JPS(Pathfinder):
 
         if direction.is_diagonal():
             cardinal = JPS.CARDINAL[direction]
-
             vertical = self.graph.neighbour(current, cardinal.v)
             horizontal = self.graph.neighbour(current, cardinal.h)
 
@@ -190,32 +183,35 @@ class JPS(Pathfinder):
             if direction.is_horizontal():
                 top = self.graph.neighbour(current, Direction.N)
                 prev_top = self.graph.neighbour(top, JPS.OPPOSITE[direction])
-                top_forced = top is not None and top.safe() and prev_top is not None and prev_top.unsafe()
 
                 bottom = self.graph.neighbour(current, Direction.S)
                 prev_bottom = self.graph.neighbour(top, JPS.OPPOSITE[direction])
-                bottom_forced = (bottom is not None and bottom.safe()
-                                 and prev_bottom is not None and prev_bottom.unsafe())
 
-                if top_forced or bottom_forced:
+                if self.forced(top, prev_top) or self.forced(bottom, prev_bottom):
                     return current
 
             elif direction.is_vertical():
-                left = self.graph.neighbour(current, Direction.E)
+                left = self.graph.neighbour(current, Direction.W)
                 prev_left = self.graph.neighbour(left, JPS.OPPOSITE[direction])
-                left_forced = left is not None and left.safe() and prev_left is not None and prev_left.unsafe()
 
-                right = self.graph.neighbour(current, Direction.W)
+                right = self.graph.neighbour(current, Direction.E)
                 prev_right = self.graph.neighbour(right, JPS.OPPOSITE[direction])
-                right_forced = right is not None and right.safe() and prev_right is not None and prev_right.unsafe()
 
-                if left_forced or right_forced:
+                if self.forced(left, prev_left) or self.forced(right, prev_right):
                     return current
 
         return self.jump(self.graph.neighbour(current, direction), current)
 
     @staticmethod
-    def direction(current: WorldElement, parent: WorldElement):
+    def safe(vertex: Vertex):
+        return vertex is not None and not vertex.obstacle
+
+    @staticmethod
+    def forced(curr: Vertex, prev: Vertex):
+        return curr is not None and not curr.obstacle and prev is not None and prev.obstacle
+
+    @staticmethod
+    def direction(current: Vertex, parent: Vertex):
         """
         Determines the direction from current node to its parent node
         :param current: the current node
@@ -223,8 +219,8 @@ class JPS(Pathfinder):
         :return: the direction from current node to its parent node
         """
 
-        cx, cy = current.get_cell().center()
-        px, py = parent.get_cell().center()
+        cx, cy = current.entity.get_cell().center()
+        px, py = parent.entity.get_cell().center()
 
         dx = cx - px
         dy = cy - py

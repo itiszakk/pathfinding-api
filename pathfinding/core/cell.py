@@ -8,8 +8,7 @@ from enum import Enum
 
 import numpy
 
-from pathfinding.core.color import Color
-from pathfinding.core.vector import Vector2D
+from pathfinding.core import Color, Vector2D
 
 
 class CellState(Enum):
@@ -99,7 +98,15 @@ class Cell:
         :return: True if unsafe, False otherwise
         """
 
-        return not self.safe()
+        return self.state == CellState.UNSAFE
+
+    def mixed(self) -> bool:
+        """
+        Checks if the cell is mixed
+        :return: True if mixed, False otherwise
+        """
+
+        return self.state == CellState.MIXED
 
     def __repr__(self) -> str:
         """

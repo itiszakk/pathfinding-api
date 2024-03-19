@@ -10,12 +10,9 @@ from itertools import pairwise
 from PIL import Image, ImageDraw
 
 from pathfinding.context import Context
-from pathfinding.core.cell import Cell
-from pathfinding.core.color import Color
-from pathfinding.core.timing import timing
-from pathfinding.core.vector import Vector2D
-from pathfinding.pathfinder.tracer import TracerInfo
-from pathfinding.world.world import World
+from pathfinding.core import Cell, Color, Vector2D, timing
+from pathfinding.pathfinder import TracerInfo
+from pathfinding.world import World
 
 
 class WorldImage:

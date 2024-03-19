@@ -6,11 +6,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from pathfinding.core.distance import Distance
-from pathfinding.core.graph import Graph, Vertex
-from pathfinding.core.trajectory import Trajectory
-from pathfinding.core.vector import Vector2D
-from pathfinding.pathfinder.tracer import Tracer, TracerInfo
+from pathfinding.core import Graph, Distance, Vertex, Vector2D, Trajectory
+from pathfinding.pathfinder import Tracer, TracerInfo
 
 
 class Pathfinder(ABC):

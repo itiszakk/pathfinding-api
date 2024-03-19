@@ -8,11 +8,41 @@ from abc import ABC, abstractmethod
 
 import numpy
 
-from pathfinding.core.direction import Direction
-from pathfinding.core.graph import Graph, Vertex
-from pathfinding.core.timing import timing
-from pathfinding.core.vector import Vector2D
-from pathfinding.world.world_element import WorldElement
+from pathfinding.core import Cell, Graph, Direction, Vertex, Vector2D, timing
+
+
+class WorldElement(ABC):
+    """
+    Abstract base class for representing elements in a world
+    """
+
+    def __init__(self, entity):
+        """
+        Initializes a world element with the specified entity.
+        :param entity: Any object representing the entity associated with the element
+        """
+
+        self.entity = entity
+
+    def obstacle(self):
+        """
+        Checks if element is obstacle
+        :return: True if obstacle, else otherwise
+        """
+        return self.get_cell().unsafe() or self.get_cell().mixed()
+
+    def get_cell(self) -> Cell | None:
+        """
+        Abstract method to get the cell associated with the element
+        :return: Cell object representing the cell associated with the element
+        """
+        return None
+
+    def __hash__(self):
+        return hash(self.entity)
+
+    def __repr__(self):
+        return f'WorldElement(entity={self.entity})'
 
 
 class World(ABC):
@@ -32,9 +62,10 @@ class World(ABC):
         self.cell_size = cell_size
 
     @timing('Graph')
-    def graph(self) -> Graph:
+    def graph(self, only_safe: bool) -> Graph:
         """
         Generates the graph representation of the world
+        :param only_safe: include only safe elements
         :return: Graph object
         """
         graph = Graph()
@@ -43,11 +74,17 @@ class World(ABC):
 
         for element in elements:
             for direction in Direction:
-                neighbours = self.neighbours(element, direction)
+                destinations = []
 
-                graph.add_edge(origin=Vertex(element),
+                for neighbour in self.neighbours(element, direction):
+                    if only_safe and neighbour.obstacle():
+                        continue
+
+                    destinations.append(Vertex(neighbour, neighbour.obstacle()))
+
+                graph.add_edge(origin=Vertex(element, element.obstacle()),
                                direction=direction,
-                               destinations=[Vertex(neighbour) for neighbour in neighbours if neighbour.safe()])
+                               destinations=destinations)
 
         return graph
 

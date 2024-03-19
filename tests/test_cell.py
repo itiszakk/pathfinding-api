@@ -1,7 +1,6 @@
 import pytest
 
-from pathfinding.core.cell import Cell, CellState
-from pathfinding.core.vector import Vector2D
+from pathfinding.core import Vector2D, Cell, CellState
 
 
 @pytest.fixture
@@ -45,8 +44,18 @@ def test_safe(cell_state, expected_safe):
 @pytest.mark.parametrize("cell_state, expected_unsafe", [
     (CellState.SAFE, False),
     (CellState.UNSAFE, True),
-    (CellState.MIXED, True)
+    (CellState.MIXED, False)
 ])
 def test_unsafe(cell_state, expected_unsafe):
     cell = Cell(Vector2D(0, 0), 10, 10, cell_state)
     assert cell.unsafe() == expected_unsafe
+
+
+@pytest.mark.parametrize("cell_state, expected_mixed", [
+    (CellState.SAFE, False),
+    (CellState.UNSAFE, False),
+    (CellState.MIXED, True)
+])
+def test_mixed(cell_state, expected_mixed):
+    cell = Cell(Vector2D(0, 0), 10, 10, cell_state)
+    assert cell.mixed() == expected_mixed

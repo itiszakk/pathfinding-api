@@ -1,6 +1,7 @@
 import pytest
+
+from pathfinding.core import Vector2D
 from pathfinding.core.distance import manhattan, euclidian
-from pathfinding.core.vector import Vector2D
 
 
 @pytest.fixture

@@ -5,7 +5,7 @@ Distance module
 import math
 from enum import StrEnum
 
-from pathfinding.core.vector import Vector2D
+from pathfinding.core import Vector2D
 
 
 def manhattan(p0: Vector2D, p1: Vector2D):

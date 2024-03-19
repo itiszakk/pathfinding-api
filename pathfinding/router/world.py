@@ -7,7 +7,7 @@ from starlette.responses import StreamingResponse
 
 import pathfinding.utils as utils
 from pathfinding.context import WorldRequest, WorldContext, Context
-from pathfinding.world.world_image import WorldImage
+from pathfinding.world import WorldImage
 
 router = APIRouter()
 

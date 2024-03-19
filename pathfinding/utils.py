@@ -6,17 +6,11 @@ import numpy
 from PIL import Image
 from fastapi import UploadFile
 
-from pathfinding.context import WorldRequest, WorldContext, PathfinderRequest, PathfinderContext
-from pathfinding.core.graph import Vertex
-from pathfinding.core.vector import Vector2D
+from pathfinding.context import WorldRequest, PathfinderRequest, WorldContext, PathfinderContext
+from pathfinding.core import Vertex, Vector2D
 from pathfinding.exception import PathPointIsUnsafeException
-from pathfinding.pathfinder.astar import AStar
-from pathfinding.pathfinder.jps import JPS
-from pathfinding.pathfinder.pathfinder import Pathfinder
-from pathfinding.world.grid import Grid
-from pathfinding.world.qtree import QTree
-from pathfinding.world.world import World
-from pathfinding.world.world_element import WorldElement
+from pathfinding.pathfinder import AStar, JPS, Pathfinder
+from pathfinding.world import Grid, QTree, World, WorldElement
 
 IMAGE_MODE = 'RGB'
 
@@ -28,6 +22,11 @@ WORLDS = {
 PATHFINDERS = {
     PathfinderRequest.ASTAR: AStar,
     PathfinderRequest.JPS: JPS
+}
+
+GRAPH_ONLY_SAFE = {
+    PathfinderRequest.ASTAR: True,
+    PathfinderRequest.JPS: False
 }
 
 
@@ -70,7 +69,7 @@ def build_pathfinder(world: World, context: PathfinderContext) -> Pathfinder:
 
     check_points(start_point, end_point, start_element, end_element)
 
-    return PATHFINDERS[pathfinder](world.graph(),
+    return PATHFINDERS[pathfinder](world.graph(GRAPH_ONLY_SAFE[pathfinder]),
                                    distance,
                                    Vertex(start_element),
                                    Vertex(end_element),
@@ -89,8 +88,8 @@ def check_points(start_point: Vector2D, end_point: Vector2D, start: WorldElement
     :raises PathPointIsUnsafeException: If start or end point is unsafe
     """
 
-    if start.unsafe():
+    if start.obstacle():
         raise PathPointIsUnsafeException(start_point)
 
-    if end.unsafe():
+    if end.obstacle():
         raise PathPointIsUnsafeException(end_point)

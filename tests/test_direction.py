@@ -1,6 +1,7 @@
 import pytest
 
-from pathfinding.core.direction import Direction, DirectionType
+from pathfinding.core import Direction
+from pathfinding.core.direction import DirectionType
 
 
 @pytest.mark.parametrize("direction, expected_opposite", [

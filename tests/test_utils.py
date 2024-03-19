@@ -1,10 +1,9 @@
 import pytest
 
-from pathfinding.core.cell import Cell, CellState
-from pathfinding.core.vector import Vector2D
+from pathfinding.core import Vector2D, Cell, CellState
 from pathfinding.exception import PathPointIsUnsafeException
 from pathfinding.utils import check_points
-from pathfinding.world.world_element import WorldElement
+from pathfinding.world import WorldElement
 
 
 class TestWorldElement(WorldElement):
