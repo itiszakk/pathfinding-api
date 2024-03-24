@@ -6,9 +6,8 @@ import numpy
 from PIL import Image
 from fastapi import UploadFile
 
-from pathfinding.context import WorldRequest, PathfinderRequest, WorldContext, PathfinderContext
+from pathfinding.api import WorldRequest, PathfinderRequest, WorldContext, PathfinderContext, PathPointIsUnsafeException
 from pathfinding.core import Vertex, Vector2D
-from pathfinding.exception import PathPointIsUnsafeException
 from pathfinding.pathfinder import AStar, JPS, Pathfinder
 from pathfinding.world import Grid, QTree, World, WorldElement
 

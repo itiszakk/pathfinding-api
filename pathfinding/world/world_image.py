@@ -9,7 +9,7 @@ from itertools import pairwise
 
 from PIL import Image, ImageDraw
 
-from pathfinding.context import Context
+from pathfinding.api import Context
 from pathfinding.core import Cell, Color, Vector2D, timing
 from pathfinding.pathfinder import TracerInfo
 from pathfinding.world import World

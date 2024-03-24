@@ -5,8 +5,7 @@ World API module
 from fastapi import APIRouter, UploadFile
 from starlette.responses import StreamingResponse
 
-import pathfinding.utils as utils
-from pathfinding.context import WorldRequest, WorldContext, Context
+from pathfinding.api import WorldRequest, WorldContext, Context, utils
 from pathfinding.world import WorldImage
 
 router = APIRouter()
